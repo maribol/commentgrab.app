@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :host,
+  :root {
+    --commentgrab-grad: linear-gradient(95deg, #7c3aed 0%, #d946ef 55%, #ec4899 100%);
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+@layer components {
+  .commentgrab-bg {
+    background-color: #f6f7fb;
+  }
+
+  .commentgrab-card {
+    @apply rounded-2xl border border-black/[0.07] bg-white;
+  }
+
+  .commentgrab-text {
+    background-image: var(--commentgrab-grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .commentgrab-ring {
+    box-shadow: 0 0 0 1px rgba(217, 70, 239, 0.35), 0 8px 30px -8px rgba(217, 70, 239, 0.45);
+  }
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex select-none items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold outline-none transition active:scale-[0.98] focus-visible:ring-4 focus-visible:ring-commentgrab-violet/20 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-ink-900 text-white hover:bg-ink-700;
+  }
+  .btn-secondary {
+    @apply btn border border-black/[0.08] bg-white text-ink-700 hover:bg-slate-50;
+  }
+  .btn-ghost {
+    @apply btn text-ink-500 hover:bg-black/[0.04] hover:text-ink-700;
+  }
+  .btn-sm {
+    @apply rounded-lg px-3 py-1.5 text-xs;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-black/[0.10] bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-300 outline-none transition focus:border-commentgrab-fuchsia/60 focus:ring-4 focus:ring-fuchsia-500/10;
+  }
+
+  .label {
+    @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-ink-400;
+  }
+
+  .scroll-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(11, 16, 32, 0.18) transparent;
+  }
+  .scroll-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .scroll-thin::-webkit-scrollbar-thumb {
+    background-color: rgba(11, 16, 32, 0.16);
+    border-radius: 999px;
+  }
+  .scroll-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+/* Widget panel open/close transition. Kept as plain CSS (outside @layer, and
+   the class names are Vue-generated so Tailwind would otherwise purge them)
+   so it reaches the content-script shadow root, where scoped styles can't. */
+.panel-enter-active,
+.panel-leave-active {
+  transition: all 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.panel-enter-from,
+.panel-leave-to {
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+}

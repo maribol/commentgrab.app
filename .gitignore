@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Cache
+.vite/
+.eslintcache
+
+# Private launch / listing kit (never publish)
+listing.md
+
+# Local Claude config & skills (never commit — keep the whole folder out of git)
+.claude/
+
+# Packaged extension uploads
+*.zip
