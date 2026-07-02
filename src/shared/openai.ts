@@ -230,7 +230,7 @@ function buildAnglesPrompt(sample: string, post: Post | null, prior: AnalysisRes
     ? `\nWhat we already learned from the analysis:\nSummary: ${prior.summary}\nObjections: ${(prior.objections ?? []).join('; ')}\nEmotional triggers: ${(prior.emotionalTriggers ?? []).join('; ')}\nCustomer language: ${(prior.customerLanguage ?? []).join('; ')}\n`
     : '';
   return `${context}${custom}${priorBlock}
-Write 5 to 8 distinct AD ANGLES for this audience. Each angle is a usable starting point, not advice.
+Extract EVERY distinct AD ANGLE the comments support — as many as you can find, with NO upper limit. Do not stop at a fixed number and do not stop early while genuinely different angles remain in the material. Each angle is a usable starting point, not advice. The only rule is that every angle must be meaningfully DIFFERENT — a different pain, desire, fear, objection, emotion, or entry point. Never pad the list with near-duplicates, minor rewordings, or generic filler; if two angles would say the same thing, keep only the stronger one.
 
 For each angle:
 - "angle": a short, punchy concept name (3-6 words).
@@ -250,7 +250,7 @@ ${sample}`;
 
 function asAngles(value: unknown): AdAngle[] {
   if (!Array.isArray(value)) return [];
-  return value
+  const mapped = value
     .map((v) => {
       if (v && typeof v === 'object') {
         const angle = String((v as any).angle ?? (v as any).name ?? (v as any).title ?? '').trim();
@@ -259,8 +259,19 @@ function asAngles(value: unknown): AdAngle[] {
       }
       return { angle: String(v).trim(), description: '' };
     })
-    .filter((a) => a.angle)
-    .slice(0, 10);
+    .filter((a) => a.angle);
+
+  // Keep as many as the model returns — no cap — but drop exact/near-duplicate
+  // angle names so the list stays unique.
+  const seen = new Set<string>();
+  const unique: AdAngle[] = [];
+  for (const a of mapped) {
+    const key = a.angle.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(a);
+  }
+  return unique;
 }
 
 export interface AdAnglesResult {

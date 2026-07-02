@@ -89,6 +89,58 @@
         </template>
       </SpCard>
 
+      <!-- reddit list page (batch) -->
+      <SpCard v-else-if="listTarget" class="!p-4">
+        <div class="flex items-start gap-3">
+          <PlatformGlyph platform="reddit" :size="40" />
+          <div class="min-w-0 flex-1">
+            <div class="text-[11px] font-semibold uppercase tracking-wide text-ink-400">{{ t('pop.batchDetected') }}</div>
+            <div class="line-clamp-2 text-sm font-medium leading-snug text-ink-900">{{ listLabel }}</div>
+          </div>
+        </div>
+
+        <!-- idle -->
+        <template v-if="status === 'idle'">
+          <div class="mt-3 flex items-center justify-between rounded-xl bg-commentgrab-soft px-3 py-2">
+            <label for="topN" class="text-xs font-semibold text-commentgrab-violet">{{ t('pop.topPosts') }}</label>
+            <input
+              id="topN"
+              v-model.number="topN"
+              type="number"
+              min="1"
+              max="25"
+              class="w-16 rounded-lg border border-black/10 bg-white px-2 py-1 text-center text-sm font-semibold text-ink-900 outline-none focus:border-commentgrab-violet"
+            />
+          </div>
+          <label class="mt-2.5 flex cursor-pointer items-center gap-2 text-xs font-medium text-ink-500">
+            <input v-model="skipExisting" type="checkbox" class="h-3.5 w-3.5 accent-commentgrab-violet" />
+            {{ t('pop.skipExisting') }}
+          </label>
+          <SpButton class="mt-3 w-full" :icon="Layers" @click="runBatch()">{{ t('pop.scrapeTop', { count: clampN(topN) }) }}</SpButton>
+        </template>
+
+        <!-- scraping -->
+        <template v-else-if="status === 'scraping'">
+          <div class="mt-4 flex items-center gap-2 text-sm font-medium text-ink-700">
+            <Loader2 class="h-4 w-4 animate-spin-slow text-commentgrab-violet" />
+            <span class="truncate">{{ progress.message || t('pop.working') }}</span>
+          </div>
+          <SpProgress class="mt-2.5" :value="progress.percent" :indeterminate="progress.percent <= 5" />
+          <SpButton variant="secondary" size="sm" class="mt-3 w-full" :icon="Square" :disabled="stopping" @click="stop()">
+            {{ stopping ? t('pop.stopping') : t('pop.stopKeep') }}
+          </SpButton>
+        </template>
+
+        <!-- error -->
+        <template v-else-if="status === 'error'">
+          <div class="mt-4 flex items-start gap-2 rounded-xl bg-rose-50 px-3 py-2.5 text-sm text-rose-700">
+            <AlertCircle class="mt-0.5 h-4 w-4 shrink-0" />
+            <span>{{ error }}</span>
+          </div>
+          <SpButton variant="secondary" class="mt-2.5 w-full" :icon="RefreshCw" @click="runBatch()">{{ t('pop.tryAgain') }}</SpButton>
+        </template>
+      </SpCard>
+
       <!-- unsupported -->
       <div v-else>
         <SpEmpty
@@ -144,15 +196,15 @@
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import {
   Sparkles, LayoutDashboard, Loader2, Square, Bookmark, BookmarkCheck, RefreshCw, AlertCircle, Compass,
-  FileSpreadsheet, FileJson, FileText, Copy, WandSparkles, ExternalLink,
+  FileSpreadsheet, FileJson, FileText, Copy, WandSparkles, ExternalLink, Layers,
 } from 'lucide-vue-next';
 import type { AppSettings, ExportFormat, PlatformId, ScrapeResult, SavedCollection, Stats } from '@/shared/types';
 import { DEFAULT_SETTINGS, EMPTY_STATS } from '@/shared/types';
-import { detectPlatform, usesBackgroundFetch, PLATFORM_META, platformLabel } from '@/shared/platform';
+import { detectPlatform, detectRedditList, redditListLabel, usesBackgroundFetch, PLATFORM_META, platformLabel, type RedditListTarget } from '@/shared/platform';
 import { getSettings, getStats, listCollections, updateCollection, setAutoAnalyze, findCollectionByUrl } from '@/shared/storage';
-import { onProgress, ensureContentScript, cancelBackgroundScrape, cancelContentScrape } from '@/shared/messaging';
+import { onProgress, ensureContentScript, cancelBackgroundScrape, cancelContentScrape, requestListScrape, requestBatchScrape } from '@/shared/messaging';
 import { t } from '@/shared/i18n';
-import { runScrape, finalizeScrape, saveAndLink } from '@/shared/scrape';
+import { runScrape, finalizeScrape, saveAndLink, saveBatch } from '@/shared/scrape';
 import { exportComments } from '@/shared/export';
 import { recordExport } from '@/shared/stats';
 import { formatNumber } from '@/shared/util';
@@ -168,6 +220,9 @@ import { useToast } from '@/ui/composables/useToast';
 
 const toast = useToast();
 const platform = ref<PlatformId | null>(null);
+const listTarget = ref<RedditListTarget | null>(null);
+const topN = ref(10);
+const skipExisting = ref(true);
 const pageTitle = ref('');
 const tabId = ref<number | undefined>(undefined);
 const tabUrl = ref('');
@@ -217,8 +272,85 @@ onMounted(async () => {
   tabUrl.value = tab?.url ?? '';
   pageTitle.value = tab?.title ?? '';
   platform.value = detectPlatform(tabUrl.value);
+  listTarget.value = platform.value ? null : detectRedditList(tabUrl.value);
   existing.value = (await findCollectionByUrl(tabUrl.value)) ?? null;
 });
+
+const listLabel = computed(() => (listTarget.value ? redditListLabel(listTarget.value) : ''));
+function clampN(n: number): number {
+  return Math.min(25, Math.max(1, Math.round(Number(n) || 10)));
+}
+
+/** Stable de-dupe key for a Reddit thread (its comments id), slug-independent. */
+function threadKey(url: string): string {
+  const m = (url || '').match(/\/comments\/([a-z0-9]+)/i);
+  return m ? m[1].toLowerCase() : (url || '').toLowerCase();
+}
+
+/**
+ * Batch-scrape the top N posts off a Reddit list page: read the ranked post
+ * list from the page's own DOM (so results match what Reddit shows), then have
+ * the service worker pull each thread's comments. Finally open the dashboard.
+ */
+async function runBatch(): Promise<void> {
+  if (!listTarget.value) return;
+  if (typeof tabId.value !== 'number') {
+    status.value = 'error';
+    error.value = 'No active tab found.';
+    return;
+  }
+  status.value = 'scraping';
+  stopping.value = false;
+  error.value = '';
+  progress.percent = 0;
+  progress.message = 'Connecting to page…';
+
+  const ready = await ensureContentScript(tabId.value);
+  if (!ready) {
+    status.value = 'error';
+    error.value = 'Reload this Reddit page once so CommentGrab can read it, then try again.';
+    return;
+  }
+
+  const n = clampN(topN.value);
+  const list = await requestListScrape(tabId.value, n);
+  if (!list?.success || !list.stubs.length) {
+    status.value = 'error';
+    error.value = list?.error || 'No posts found on this page.';
+    return;
+  }
+
+  // Optionally drop posts already scraped before (any collection / batch),
+  // keyed on the stable Reddit thread id so slugs/query strings don't matter.
+  let stubs = list.stubs;
+  if (skipExisting.value) {
+    const known = new Set((await listCollections()).map((c) => threadKey(c.url)));
+    stubs = stubs.filter((s) => !known.has(threadKey(s.url)));
+    if (!stubs.length) {
+      status.value = 'error';
+      error.value = 'Every top post here is already in your library. Uncheck “Skip already-scraped” to re-scrape.';
+      return;
+    }
+  }
+
+  const res = await requestBatchScrape({
+    stubs,
+    query: listLabel.value,
+    source: listTarget.value.source,
+    url: tabUrl.value,
+    limit: n,
+  });
+  if (res?.success) {
+    const run = await saveBatch(res, tabUrl.value);
+    stats.value = await getStats();
+    openDashboard(`/batch/${run.id}`);
+    status.value = 'idle';
+  } else {
+    status.value = 'error';
+    error.value = res?.error || 'Batch scrape failed.';
+  }
+  stopping.value = false;
+}
 onUnmounted(() => unsub?.());
 
 async function scrape(): Promise<ScrapeResult | null> {
@@ -264,8 +396,13 @@ async function scrape(): Promise<ScrapeResult | null> {
 
 /** Ask the in-flight scrape to stop and keep whatever it has collected. */
 function stop(): void {
-  if (!platform.value) return;
   stopping.value = true;
+  if (listTarget.value) {
+    if (typeof tabId.value === 'number') cancelContentScrape(tabId.value); // stop DOM list scroll
+    cancelBackgroundScrape(); // stop comment scraping
+    return;
+  }
+  if (!platform.value) return;
   if (usesBackgroundFetch(platform.value)) cancelBackgroundScrape();
   else if (typeof tabId.value === 'number') cancelContentScrape(tabId.value);
 }

@@ -4,6 +4,13 @@ import { deriveSource } from '@/shared/platform';
 export type ProgressFn = (message: string, percent: number) => void;
 export type ShouldStop = () => boolean;
 
+export interface RedditScrapeOptions {
+  /** Skip the deep `morechildren` drilling — parse only the initial thread JSON. */
+  fast?: boolean;
+  /** Cap the number of comments kept (applied after parsing). */
+  maxComments?: number;
+}
+
 const TRANSIENT = new Set([429, 500, 502, 503, 504]);
 const MAX_ATTEMPTS = 3;
 const MORE_BATCH = 100;
@@ -13,7 +20,7 @@ interface RedditMore {
   depth: number;
 }
 
-async function fetchJson(url: string): Promise<Response> {
+export async function fetchJson(url: string): Promise<Response> {
   let lastErr: unknown = null;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
@@ -149,7 +156,12 @@ async function drainMore(
   return collected;
 }
 
-export async function scrapeReddit(url: string, progress: ProgressFn, shouldStop?: ShouldStop): Promise<ScrapeResult> {
+export async function scrapeReddit(
+  url: string,
+  progress: ProgressFn,
+  shouldStop?: ShouldStop,
+  opts?: RedditScrapeOptions,
+): Promise<ScrapeResult> {
   try {
     const u = new URL(url);
     u.pathname = canonicalThreadPath(u.pathname) + '.json';
@@ -183,13 +195,18 @@ export async function scrapeReddit(url: string, progress: ProgressFn, shouldStop
     const more: RedditMore[] = [];
     parseTree(data?.[1]?.data?.children ?? [], 0, seen, comments, more);
 
-    if (more.length && linkId) {
+    // Fast mode (batch scrapes) keeps only the initial thread JSON — no deep
+    // `morechildren` drilling — which is plenty for analysis and far gentler on
+    // Reddit's rate limits across many posts.
+    if (!opts?.fast && more.length && linkId) {
       progress(`Found ${comments.length} comments, loading more…`, 30);
       comments.push(...(await drainMore(linkId, more, seen, comments.length, progress, shouldStop)));
     }
 
-    progress(`Loaded ${comments.length} comments`, 96);
-    return { success: true, comments, post, platform: 'reddit', method: 'json' };
+    const capped = opts?.maxComments && comments.length > opts.maxComments ? comments.slice(0, opts.maxComments) : comments;
+
+    progress(`Loaded ${capped.length} comments`, 96);
+    return { success: true, comments: capped, post, platform: 'reddit', method: 'json' };
   } catch (err) {
     return { success: false, comments: [], post: null, platform: 'reddit', error: (err as Error).message };
   }

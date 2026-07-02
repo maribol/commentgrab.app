@@ -110,7 +110,7 @@
         </div>
 
         <div class="flex items-center justify-between px-1.5 text-[11px] text-ink-300">
-          <span>v1.0.0 · PolyForm Shield</span>
+          <span>v1.1.0 · PolyForm Shield</span>
           <span class="font-medium">Source-available</span>
         </div>
       </div>
@@ -139,6 +139,7 @@
       <div class="mx-auto w-full max-w-5xl flex-1 px-8 py-8">
         <OverviewView v-if="active === 'overview'" />
         <SavedView v-else-if="active === 'saved'" :id="route.segments[1]" />
+        <BatchesView v-else-if="active === 'batch'" :id="route.segments[1]" />
         <HistoryView v-else-if="active === 'history'" />
         <AnalyzeView v-else-if="active === 'analyze'" :id="route.segments[1]" />
         <SettingsView v-else-if="active === 'settings'" />
@@ -153,7 +154,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import {
-  LayoutDashboard, Bookmark, History, WandSparkles, Settings, ShieldCheck, Mail,
+  LayoutDashboard, Bookmark, Layers, History, WandSparkles, Settings, ShieldCheck, Mail,
   Search, ChevronRight, PanelLeft, Bug,
 } from 'lucide-vue-next';
 import type { SavedCollection } from '@/shared/types';
@@ -168,6 +169,7 @@ import { listCollections } from '@/shared/storage';
 import SpToaster from '@/ui/components/SpToaster.vue';
 import OverviewView from './views/OverviewView.vue';
 import SavedView from './views/SavedView.vue';
+import BatchesView from './views/BatchesView.vue';
 import HistoryView from './views/HistoryView.vue';
 import AnalyzeView from './views/AnalyzeView.vue';
 import SettingsView from './views/SettingsView.vue';
@@ -181,7 +183,7 @@ const paletteOpen = ref(false);
 const active = computed(() => route.segments[0] || 'overview');
 const bugUrl = bugReportMailto(chrome.runtime.getManifest().version);
 
-const NAV_KEYS = ['overview', 'saved', 'history', 'analyze', 'settings'];
+const NAV_KEYS = ['overview', 'saved', 'batch', 'history', 'analyze', 'settings'];
 const sectionLabel = computed(() => t(`nav.${NAV_KEYS.includes(active.value) ? active.value : 'overview'}`));
 
 const navGroups = computed(() => [
@@ -190,6 +192,7 @@ const navGroups = computed(() => [
     items: [
       { key: 'overview', label: t('nav.overview'), path: '/', icon: LayoutDashboard, badge: '' },
       { key: 'saved', label: t('nav.saved'), path: '/saved', icon: Bookmark, badge: savedCount.value ? String(savedCount.value) : '' },
+      { key: 'batch', label: t('nav.batch'), path: '/batch', icon: Layers, badge: '' },
       { key: 'history', label: t('nav.history'), path: '/history', icon: History, badge: '' },
     ],
   },

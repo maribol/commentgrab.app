@@ -1,7 +1,9 @@
-import type { PlatformId, ScrapeOptions, ScrapeProgress, ScrapeResult } from './types';
+import type { BatchScrapeResult, PlatformId, PostStub, ScrapeOptions, ScrapeProgress, ScrapeResult } from './types';
 
 export type CommentGrabMessage =
   | { kind: 'bgScrape'; platform: PlatformId; url: string; options?: ScrapeOptions }
+  | { kind: 'bgBatchScrape'; stubs: PostStub[]; query: string; source: string; url: string; limit: number }
+  | { kind: 'listScrape'; want: number }
   | { kind: 'contentScrape'; platform: PlatformId; url: string; options?: ScrapeOptions }
   | { kind: 'ping' }
   | { kind: 'progress'; progress: ScrapeProgress }
@@ -13,6 +15,21 @@ export interface PingResponse {
   platform?: PlatformId | null;
 }
 
+/** Post list read from a Reddit list page's DOM. */
+export interface ListScrapeResult {
+  success: boolean;
+  stubs: PostStub[];
+  error?: string;
+}
+
+export interface BatchScrapeRequest {
+  stubs: PostStub[];
+  query: string;
+  source: string;
+  url: string;
+  limit: number;
+}
+
 /** Ask the service worker to fetch a JSON-API platform (reddit/HN/steam). */
 export function requestBackgroundScrape(
   platform: PlatformId,
@@ -20,6 +37,16 @@ export function requestBackgroundScrape(
   options?: ScrapeOptions,
 ): Promise<ScrapeResult> {
   return chrome.runtime.sendMessage<CommentGrabMessage, ScrapeResult>({ kind: 'bgScrape', platform, url, options });
+}
+
+/** Ask a tab's content script to read the ranked post list off a Reddit list page's DOM. */
+export function requestListScrape(tabId: number, want: number): Promise<ListScrapeResult> {
+  return chrome.tabs.sendMessage<CommentGrabMessage, ListScrapeResult>(tabId, { kind: 'listScrape', want });
+}
+
+/** Ask the service worker to scrape comments for the ranked top N posts. */
+export function requestBatchScrape(req: BatchScrapeRequest): Promise<BatchScrapeResult> {
+  return chrome.runtime.sendMessage<CommentGrabMessage, BatchScrapeResult>({ kind: 'bgBatchScrape', ...req });
 }
 
 /** Ask a tab's content script to scrape the live DOM (youtube/generic). */

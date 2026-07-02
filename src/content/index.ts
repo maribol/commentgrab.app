@@ -6,6 +6,7 @@ import { getSettings, onStorageChanged } from '@/shared/storage';
 import { scrapeYouTube } from './dom/youtube';
 import { scrapeGoogleMaps } from './dom/googlemaps';
 import { scrapeGeneric } from './dom/generic';
+import { scrapeRedditListDom } from './dom/reddit-list';
 import { widgetState } from './state';
 import { mountWidget } from './mount';
 
@@ -71,6 +72,21 @@ async function init(): Promise<void> {
       cancelRequested = true;
       widgetState.stopRequested = true; // also stop a widget-initiated DOM scrape
       return undefined;
+    }
+
+    if (message.kind === 'listScrape') {
+      cancelRequested = false;
+      const onProgress = (msg: string, percent: number) => reportProgress({ message: msg, percent });
+      scrapeRedditListDom(message.want, onProgress, () => cancelRequested)
+        .then((stubs) =>
+          sendResponse({
+            success: stubs.length > 0,
+            stubs,
+            error: stubs.length ? undefined : 'No posts found on this page. Scroll the results a bit, then try again.',
+          }),
+        )
+        .catch((err: unknown) => sendResponse({ success: false, stubs: [], error: (err as Error)?.message ?? 'Could not read the post list.' }));
+      return true; // async
     }
 
     if (message.kind === 'contentScrape') {
