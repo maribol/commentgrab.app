@@ -70,11 +70,20 @@
             <SpButton size="sm" :icon="Sparkles" :loading="analyzing" @click="analyzeSelected()">
               {{ analyzing ? t('batch.analyzing', { done: analyzeDone, total: analyzeTotal }) : t('batch.analyzeSelected') }}
             </SpButton>
+            <label class="flex cursor-pointer items-center gap-1.5 pr-1 text-xs font-medium text-ink-500" :title="t('batch.withAnglesTip')">
+              <input v-model="withAngles" type="checkbox" class="h-3.5 w-3.5 accent-commentgrab-violet" />
+              {{ t('batch.withAngles') }}
+            </label>
             <div class="flex items-center gap-1 rounded-xl border border-black/[0.08] bg-white px-1.5 py-1">
-              <span class="px-1 text-xs font-semibold text-ink-400">{{ t('batch.exportSelected') }}</span>
+              <span class="px-1 text-xs font-semibold text-ink-400">{{ t('batch.expComments') }}</span>
               <button class="batch-fmt" :disabled="exporting" @click="exportSelected('csv')"><FileSpreadsheet class="h-3.5 w-3.5" /> CSV</button>
               <button class="batch-fmt" :disabled="exporting" @click="exportSelected('json')"><FileJson class="h-3.5 w-3.5" /> JSON</button>
               <button class="batch-fmt" :disabled="exporting" @click="exportSelected('markdown')"><FileText class="h-3.5 w-3.5" /> MD</button>
+            </div>
+            <div class="flex items-center gap-1 rounded-xl border border-black/[0.08] bg-white px-1.5 py-1" :title="analyzedCount ? '' : t('batch.noAnalyses')">
+              <span class="px-1 text-xs font-semibold text-ink-400">{{ t('batch.expAnalyses') }}</span>
+              <button class="batch-fmt" :disabled="exporting || !analyzedCount" @click="exportAnalyses('markdown')"><Sparkles class="h-3.5 w-3.5" /> MD</button>
+              <button class="batch-fmt" :disabled="exporting || !analyzedCount" @click="exportAnalyses('json')"><FileJson class="h-3.5 w-3.5" /> JSON</button>
             </div>
             <button class="btn-ghost h-8 rounded-lg px-2 text-xs font-semibold hover:!text-rose-600" @click="deleteSelected()">
               <Trash2 class="h-3.5 w-3.5" /> {{ t('batch.deleteSelected') }}
@@ -128,8 +137,8 @@ import type { AppSettings, BatchRun, ExportFormat, SavedCollection } from '@/sha
 import { DEFAULT_SETTINGS } from '@/shared/types';
 import { getSettings, listBatches, getBatch, upsertBatch, deleteBatch, getCollection, updateCollection, deleteCollection } from '@/shared/storage';
 import { platformLabel } from '@/shared/platform';
-import { analyzeComments } from '@/shared/openai';
-import { exportCollectionsCombined } from '@/shared/export';
+import { analyzeComments, generateAdAngles } from '@/shared/openai';
+import { exportCollectionsCombined, exportAnalysesCombined } from '@/shared/export';
 import { recordExport } from '@/shared/stats';
 import { relativeTime } from '@/shared/util';
 import { t } from '@/shared/i18n';
@@ -152,11 +161,13 @@ const selected = reactive<Record<string, boolean>>({});
 const analyzing = ref(false);
 const analyzeDone = ref(0);
 const analyzeTotal = ref(0);
+const withAngles = ref(false);
 const exporting = ref(false);
 
 const selectedRows = computed(() => rows.value.filter((c) => selected[c.id]));
 const someSelected = computed(() => selectedRows.value.length > 0);
 const allSelected = computed(() => rows.value.length > 0 && rows.value.every((c) => selected[c.id]));
+const analyzedCount = computed(() => selectedRows.value.filter((c) => c.analysis).length);
 
 function toggle(id: string, on: boolean): void {
   selected[id] = on;
@@ -183,30 +194,47 @@ async function load(): Promise<void> {
 
 watch(() => props.id, load, { immediate: true });
 
+/** A post needs work if it isn't analyzed, or angles are on and it has none yet. */
+function needsAnalysis(c: SavedCollection): boolean {
+  if (!c.analysis) return true;
+  return withAngles.value && !c.analysis.adAngles?.length;
+}
+
 async function analyzeSelected(): Promise<void> {
   if (!settings.value.openAiKey) {
     toast.error(t('batch.needKey'));
     navigate('/settings');
     return;
   }
-  const targets = selectedRows.value.filter((c) => !c.analysis);
+  const targets = selectedRows.value.filter(needsAnalysis);
   if (!targets.length) {
     toast.success(t('batch.analyzeDone', { count: selectedRows.value.length }));
     return;
   }
+  const opts = {
+    apiKey: settings.value.openAiKey,
+    model: settings.value.openAiModel,
+    instructions: settings.value.analysisInstructions,
+  };
   analyzing.value = true;
   analyzeTotal.value = targets.length;
   analyzeDone.value = 0;
   let ok = 0;
   for (const c of targets) {
     try {
-      const result = await analyzeComments(c.comments, c.post, {
-        apiKey: settings.value.openAiKey,
-        model: settings.value.openAiModel,
-        instructions: settings.value.analysisInstructions,
-      });
-      await updateCollection(c.id, { analysis: result });
-      c.analysis = result; // reflect in the row immediately
+      let analysis = c.analysis ?? (await analyzeComments(c.comments, c.post, opts));
+      // Optionally generate ad angles in the same pass (extra tokens per post).
+      if (withAngles.value && !analysis.adAngles?.length) {
+        const res = await generateAdAngles(c.comments, c.post, analysis, opts);
+        analysis = {
+          ...analysis,
+          adAngles: res.adAngles,
+          tokensIn: (analysis.tokensIn ?? 0) + res.tokensIn,
+          tokensOut: (analysis.tokensOut ?? 0) + res.tokensOut,
+        };
+      }
+      await updateCollection(c.id, { analysis });
+      c.analysis = analysis; // reflect in the row immediately
       ok++;
     } catch (e) {
       toast.error((e as Error).message || 'Analysis failed.');
@@ -228,6 +256,28 @@ async function exportSelected(format: ExportFormat): Promise<void> {
       toast.success(t('batch.exported', { count: res.count }));
     } else {
       toast.error('Export failed.');
+    }
+  } finally {
+    exporting.value = false;
+  }
+}
+
+/** Export the AI analyses of the selected posts as one combined file. */
+async function exportAnalyses(format: 'markdown' | 'json'): Promise<void> {
+  if (exporting.value) return;
+  if (!analyzedCount.value) {
+    toast.error(t('batch.noAnalyses'));
+    return;
+  }
+  exporting.value = true;
+  try {
+    const name = batch.value?.query || 'batch';
+    const res = await exportAnalysesCombined(format, selectedRows.value, name);
+    if (res.ok) {
+      await recordExport(format, 1);
+      toast.success(t('batch.analysesExported', { count: res.count }));
+    } else {
+      toast.error(t('batch.noAnalyses'));
     }
   } finally {
     exporting.value = false;

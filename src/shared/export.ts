@@ -400,3 +400,44 @@ export async function exportCollectionsCombined(
   downloadBlob(buildCombinedCsv(list, settings), buildFilename(label, platform, 'csv'), 'text/csv;charset=utf-8;');
   return { ok: true, count: list.length };
 }
+
+/**
+ * Export the AI analyses of several collections as a SINGLE combined file
+ * (Markdown report or structured JSON). Collections without an analysis are
+ * skipped. Returns how many analyses were included.
+ */
+export async function exportAnalysesCombined(
+  format: 'markdown' | 'json' | 'clipboard',
+  collections: SavedCollection[],
+  name: string,
+): Promise<{ ok: boolean; count: number }> {
+  const withAnalysis = collections.filter((c) => c.analysis);
+  if (!withAnalysis.length) return { ok: false, count: 0 };
+  const platform: PlatformId = withAnalysis[0]?.platform ?? 'generic';
+  const label: Post = { title: `${name || 'batch'} analyses`, body: '', url: '', source: '' };
+
+  if (format === 'json') {
+    const payload = {
+      exportedBy: 'CommentGrab',
+      generatedAt: new Date().toISOString(),
+      batch: name,
+      count: withAnalysis.length,
+      analyses: withAnalysis.map((c) => ({
+        title: c.title,
+        platform: c.platform,
+        url: c.url,
+        commentCount: c.commentCount,
+        analysis: c.analysis,
+      })),
+    };
+    downloadBlob(JSON.stringify(payload, null, 2), buildFilename(label, platform, 'json'), 'application/json');
+    return { ok: true, count: withAnalysis.length };
+  }
+
+  const md = withAnalysis
+    .map((c) => buildAnalysisMarkdown(c.analysis!, { title: c.title, platform: c.platform, url: c.url, commentCount: c.commentCount }))
+    .join('\n\n---\n\n');
+  if (format === 'clipboard') return { ok: await copyText(md), count: withAnalysis.length };
+  downloadBlob(md, buildFilename(label, platform, 'md'), 'text/markdown;charset=utf-8;');
+  return { ok: true, count: withAnalysis.length };
+}

@@ -40,7 +40,7 @@ function buildUserPrompt(sample: string, post: Post | null, instructions?: strin
 Analyze the following comments and return JSON with EXACTLY these keys:
 {
   "summary": "3-5 sentence overview of what this audience cares about",
-  "hooks": ["5-10 scroll-stopping ad hooks. Each is a FIRST line for an ad, written as persuasive copy aimed AT the audience in second person (you/your), built on a specific pain, desire, fear, or objection in the comments and using their own words. Do NOT restate, quote, or paraphrase a single comment. Lead with the emotion, then create tension or curiosity. Vary the angle across the set: pain-poke, bold promise, contrarian take, callout, and question. Keep each under ~15 words. Example transform: comment 'applied early May, still no response' becomes hook 'Still refreshing your inbox every morning? The wait is not your fault.'"],
+  "hooks": ["As many distinct, high-quality scroll-stopping ad hooks as the comments support — no fixed number, no upper limit; keep going while genuinely different, strong hooks remain, and never pad with near-duplicates or weak filler. Each is a FIRST line for an ad, written as persuasive copy aimed AT the audience in second person (you/your), built on a specific pain, desire, fear, or objection in the comments and using their own words. Do NOT restate, quote, or paraphrase a single comment. Lead with the emotion, then create tension or curiosity. Vary the angle across the set: pain-poke, bold promise, contrarian take, callout, and question. Keep each under ~15 words. Example transform: comment 'applied early May, still no response' becomes hook 'Still refreshing your inbox every morning? The wait is not your fault.'"],
   "objections": ["doubts/hesitations people raise before buying or acting"],
   "emotionalTriggers": ["recurring frustrations and desires"],
   "failedSolutions": ["things people tried that did not work"],
@@ -205,7 +205,7 @@ export async function analyzeComments(
     tokensIn: Number(usage.prompt_tokens) || 0,
     tokensOut: Number(usage.completion_tokens) || 0,
     summary: typeof parsed.summary === 'string' ? parsed.summary.trim() : '',
-    hooks: asStringArray(parsed.hooks),
+    hooks: asStringArray(parsed.hooks, Infinity),
     objections: asStringArray(parsed.objections),
     emotionalTriggers: asStringArray(parsed.emotionalTriggers),
     failedSolutions: asStringArray(parsed.failedSolutions),
@@ -346,7 +346,7 @@ function buildHooksPrompt(sample: string, post: Post | null, prior: AnalysisResu
     ? `\nWhat we already learned:\nSummary: ${prior.summary}\nObjections: ${(prior.objections ?? []).join('; ')}\nEmotional triggers: ${(prior.emotionalTriggers ?? []).join('; ')}\n`
     : '';
   return `${context}${custom}${priorBlock}
-Write 8 to 12 scroll-stopping ad HOOKS for this audience. Each is a FIRST line for an ad, written as persuasive copy aimed AT the audience in second person (you/your), built on a specific pain, desire, fear, or objection in the comments and using their own words. Do NOT restate, quote, or paraphrase a single comment. Lead with the emotion, then create tension or curiosity. Vary the angle: pain-poke, bold promise, contrarian take, callout, question. Keep each under ~15 words.
+Write as many distinct, high-quality scroll-stopping ad HOOKS as the comments support — no fixed number and no upper limit. Keep going while genuinely different, strong hooks remain; never pad with near-duplicates or weak filler. Each is a FIRST line for an ad, written as persuasive copy aimed AT the audience in second person (you/your), built on a specific pain, desire, fear, or objection in the comments and using their own words. Do NOT restate, quote, or paraphrase a single comment. Lead with the emotion, then create tension or curiosity. Vary the angle: pain-poke, bold promise, contrarian take, callout, question. Keep each under ~15 words.
 
 Return JSON with EXACTLY this shape:
 { "hooks": ["hook one", "hook two"] }
@@ -400,7 +400,7 @@ export async function generateHooks(
   }
   const usage = (data?.usage ?? {}) as Record<string, unknown>;
   return {
-    hooks: asStringArray(parsed.hooks),
+    hooks: asStringArray(parsed.hooks, Infinity),
     tokensIn: Number(usage.prompt_tokens) || 0,
     tokensOut: Number(usage.completion_tokens) || 0,
   };
