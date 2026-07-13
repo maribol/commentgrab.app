@@ -1,8 +1,8 @@
-import type { ScrapeOptions, ScrapeResult, SavedCollection, AppSettings } from './types';
+import type { BatchRun, BatchScrapeResult, ScrapeOptions, ScrapeResult, SavedCollection, AppSettings } from './types';
 import { usesBackgroundFetch } from './platform';
 import { requestBackgroundScrape, requestContentScrape } from './messaging';
 import { recordScrape } from './stats';
-import { addHistory, updateHistory, upsertCollection } from './storage';
+import { addHistory, updateHistory, upsertCollection, upsertBatch } from './storage';
 import { uid } from './util';
 
 /** Route a scrape to the service worker (JSON APIs) or the tab's content script (DOM). */
@@ -91,4 +91,51 @@ export async function saveAndLink(
   const collection = await saveResultAsCollection(result, url, undefined, boardIds);
   if (historyId) await updateHistory(historyId, { savedCollectionId: collection.id });
   return collection;
+}
+
+/**
+ * Persist a batch scrape: save each successful post as its own collection
+ * (tagged with the batch id so it's still individually openable), group them
+ * under a BatchRun in ranked order, and record stats + a single history entry.
+ */
+export async function saveBatch(batch: BatchScrapeResult, url: string): Promise<BatchRun> {
+  const now = Date.now();
+  const batchId = uid('batch');
+  const collectionIds: string[] = [];
+  let totalComments = 0;
+
+  for (const { result } of batch.posts) {
+    if (!result.success) continue;
+    const collection = buildCollection(result, result.post?.url || url);
+    collection.batchId = batchId;
+    await upsertCollection(collection);
+    collectionIds.push(collection.id);
+    totalComments += result.comments.length;
+    await recordScrape(result.platform, result.comments.length);
+  }
+
+  const run: BatchRun = {
+    id: batchId,
+    platform: 'reddit',
+    query: batch.query,
+    source: batch.source,
+    url,
+    sort: 'comments',
+    createdAt: now,
+    updatedAt: now,
+    collectionIds,
+  };
+  await upsertBatch(run);
+
+  await addHistory({
+    id: uid('h'),
+    platform: 'reddit',
+    title: `Batch: ${batch.query}`,
+    source: batch.source,
+    url,
+    commentCount: totalComments,
+    scrapedAt: now,
+  });
+
+  return run;
 }

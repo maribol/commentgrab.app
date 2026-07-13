@@ -71,6 +71,37 @@ export interface ScrapeProgress {
   percent: number;
 }
 
+/** One post surfaced on a Reddit list page, before its comments are scraped. */
+export interface PostStub {
+  title: string;
+  /** Full permalink to the thread. */
+  url: string;
+  numComments: number;
+  score: number;
+  author: string;
+  /** e.g. "r/foo". */
+  subreddit: string;
+}
+
+/** A list-page post paired with the result of scraping its comments. */
+export interface BatchPost {
+  stub: PostStub;
+  result: ScrapeResult;
+}
+
+/** Outcome of a "scrape the top N posts" run over a Reddit list page. */
+export interface BatchScrapeResult {
+  success: boolean;
+  /** Display label for the run (search query or "r/foo · top"). */
+  query: string;
+  source: string;
+  /** The list page it was scraped from. */
+  url: string;
+  posts: BatchPost[];
+  error?: string;
+  rateLimited?: boolean;
+}
+
 export interface ScrapeOptions {
   /** Soft cap on comments for DOM scrapers that auto-scroll. */
   maxComments?: number;
@@ -128,6 +159,31 @@ export interface SavedCollection {
   analysis?: AnalysisResult | null;
   /** Boards this collection is filed under. */
   boardIds?: string[];
+  /** Set when this collection is one post of a batch scrape ([[BatchRun]]). */
+  batchId?: string;
+}
+
+/**
+ * A batch scrape of a Reddit list page (search results or a subreddit listing):
+ * the top N posts, ranked by comment count, each stored as its own
+ * `SavedCollection`. This record just groups them and remembers where they came
+ * from so the dashboard can offer bulk analyze / export.
+ */
+export interface BatchRun {
+  id: string;
+  platform: PlatformId;
+  /** Display label — the search query or "r/foo · top". */
+  query: string;
+  /** Friendly origin, e.g. "reddit.com" or "r/foo". */
+  source: string;
+  /** The list page the batch was scraped from. */
+  url: string;
+  /** How posts were ranked (currently always "comments"). */
+  sort: string;
+  createdAt: number;
+  updatedAt: number;
+  /** Child collection ids, in ranked order. */
+  collectionIds: string[];
 }
 
 export interface HistoryEntry {

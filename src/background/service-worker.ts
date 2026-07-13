@@ -8,6 +8,7 @@ import { scrapeBluesky } from './scrapers/bluesky';
 import { scrapeGitHub } from './scrapers/github';
 import { scrapeStackExchange } from './scrapers/stackexchange';
 import { scrapeInstagram } from './scrapers/instagram';
+import { scrapeBatchFromStubs } from './scrapers/reddit-list';
 
 // Set by a 'cancelScrape' message; reset at the start of each background scrape.
 let cancelRequested = false;
@@ -51,6 +52,23 @@ chrome.runtime.onMessage.addListener((message: CommentGrabMessage, sender, sendR
   if (message?.kind === 'cancelScrape') {
     cancelRequested = true;
     return undefined;
+  }
+
+  if (message?.kind === 'bgBatchScrape') {
+    cancelRequested = false; // fresh batch
+    const batchTabId = sender.tab?.id;
+    const progress: ProgressFn = (msg, percent) => {
+      const payload: CommentGrabMessage = { kind: 'progress', progress: { message: msg, percent } };
+      chrome.runtime.sendMessage(payload).catch(() => {});
+      if (typeof batchTabId === 'number') chrome.tabs.sendMessage(batchTabId, payload).catch(() => {});
+    };
+    const { stubs, query, source, url, limit } = message;
+    scrapeBatchFromStubs({ stubs, query, source, url, limit }, progress, () => cancelRequested)
+      .then(sendResponse)
+      .catch((err: unknown) =>
+        sendResponse({ success: false, query, source, url, posts: [], error: (err as Error)?.message ?? 'Batch scrape failed.' }),
+      );
+    return true; // async sendResponse
   }
 
   if (!message || message.kind !== 'bgScrape') return undefined;

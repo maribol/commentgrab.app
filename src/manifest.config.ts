@@ -10,7 +10,7 @@ export default defineManifest({
   manifest_version: 3,
   name: 'CommentGrab — Free Comment & Post Exporter',
   short_name: 'CommentGrab',
-  version: '1.0.0',
+  version: '1.1.0',
   description:
     'Turn public comment threads into clean CSV/JSON exports and AI-ready signal. Reddit, YouTube, Hacker News, Steam & more.',
   icons,

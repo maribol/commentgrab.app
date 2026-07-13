@@ -111,6 +111,64 @@ export function isScrapeable(url: string | undefined | null): boolean {
   return detectPlatform(url) !== null;
 }
 
+/* --------------------------- Reddit list pages ------------------------- */
+
+/**
+ * A Reddit *list* page (search results or a subreddit listing) we can batch a
+ * "scrape the top N posts" run from. This is deliberately separate from
+ * `detectPlatform`, which only speaks in single-thread `PlatformId`s. The post
+ * list itself is read from the page's rendered DOM (Reddit's own relevance
+ * ranking), not the weak public search API — so `detectRedditList` only has to
+ * recognize the page and label it.
+ */
+export interface RedditListTarget {
+  kind: 'search' | 'listing';
+  /** Raw query text (search) or listing sort e.g. "top" (listing). */
+  query: string;
+  /** Friendly origin, e.g. "reddit.com" or "r/foo". */
+  source: string;
+}
+
+const LISTING_SORTS = new Set(['hot', 'new', 'top', 'rising', 'controversial', 'best']);
+
+/** Detect a Reddit search or subreddit listing page. Returns null otherwise. */
+export function detectRedditList(url: string | undefined | null): RedditListTarget | null {
+  if (!url) return null;
+  const p = parts(url);
+  if (!p || !hostIs(p, 'reddit.com')) return null;
+  // Single threads and profiles are handled by detectPlatform — never here.
+  if (/\/comments\/[a-z0-9]{4,}/i.test(p.pathname)) return null;
+  if (/\/u(?:ser)?\//i.test(p.pathname)) return null;
+
+  const subMatch = p.pathname.match(/^\/r\/([^/]+)/i);
+  const sub = subMatch?.[1];
+  const isSearchPath = /(^|\/)search\/?$/i.test(p.pathname);
+
+  // --- Search (site-wide or restricted to a subreddit) ---
+  if (isSearchPath) {
+    const q = (p.search.get('q') || '').trim();
+    if (!q) return null;
+    return { kind: 'search', query: q, source: sub ? `r/${sub}` : 'reddit.com' };
+  }
+
+  // --- Subreddit listing (bare /r/sub or /r/sub/<sort>) ---
+  if (sub) {
+    const rest = p.pathname.replace(/^\/r\/[^/]+/i, '').replace(/^\/|\/$/g, '');
+    if (rest && !LISTING_SORTS.has(rest.toLowerCase())) return null; // wiki, about, comments, submit…
+    return { kind: 'listing', query: rest ? rest.toLowerCase() : 'hot', source: `r/${sub}` };
+  }
+
+  return null;
+}
+
+/** Human display label for a detected list target (popup + batch header). */
+export function redditListLabel(target: RedditListTarget): string {
+  if (target.kind === 'search') {
+    return target.source === 'reddit.com' ? `“${target.query}”` : `${target.source}: “${target.query}”`;
+  }
+  return `${target.source} · ${target.query}`;
+}
+
 /** Platforms whose data is fetched by the background service worker (CORS-free APIs). */
 export function usesBackgroundFetch(platform: PlatformId): boolean {
   return (

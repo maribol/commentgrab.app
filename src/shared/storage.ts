@@ -4,6 +4,7 @@ import {
   type HistoryEntry,
   type Comment,
   type Board,
+  type BatchRun,
   type Stats,
   DEFAULT_SETTINGS,
   DEFAULT_EXPORT_SETTINGS,
@@ -17,6 +18,7 @@ const KEYS = {
   collections: 'commentgrab:collections',
   history: 'commentgrab:history',
   boards: 'commentgrab:boards',
+  batches: 'commentgrab:batches',
 } as const;
 
 /** Each collection's (potentially large) comment array lives under its own key. */
@@ -204,7 +206,7 @@ export async function clearHistory(): Promise<void> {
 export async function clearAllData(): Promise<void> {
   const all = await getRaw<SavedCollection[]>(KEYS.collections, []);
   const commentKeys = all.map((c) => commentsKey(c.id));
-  await chrome.storage.local.remove([KEYS.collections, KEYS.history, KEYS.stats, ...commentKeys]);
+  await chrome.storage.local.remove([KEYS.collections, KEYS.history, KEYS.stats, KEYS.batches, ...commentKeys]);
 }
 
 export async function estimateUsage(): Promise<{ bytes: number; quota: number }> {
@@ -264,6 +266,36 @@ export async function deleteBoard(id: string): Promise<void> {
     }
   }
   if (changed) await setRaw(KEYS.collections, cols);
+}
+
+/* ------------------------------ Batches ------------------------------- */
+
+export async function listBatches(): Promise<BatchRun[]> {
+  const all = await getRaw<BatchRun[]>(KEYS.batches, []);
+  return all.sort((a, b) => b.updatedAt - a.updatedAt);
+}
+
+export async function getBatch(id: string): Promise<BatchRun | undefined> {
+  const all = await getRaw<BatchRun[]>(KEYS.batches, []);
+  return all.find((b) => b.id === id);
+}
+
+export async function upsertBatch(batch: BatchRun): Promise<void> {
+  const all = await getRaw<BatchRun[]>(KEYS.batches, []);
+  const idx = all.findIndex((b) => b.id === batch.id);
+  if (idx >= 0) all[idx] = batch;
+  else all.unshift(batch);
+  await setRaw(KEYS.batches, all);
+}
+
+/** Remove a batch. When `withCollections`, also delete its child collections. */
+export async function deleteBatch(id: string, opts: { withCollections?: boolean } = {}): Promise<void> {
+  const all = await getRaw<BatchRun[]>(KEYS.batches, []);
+  const batch = all.find((b) => b.id === id);
+  await setRaw(KEYS.batches, all.filter((b) => b.id !== id));
+  if (batch && opts.withCollections) {
+    for (const cid of batch.collectionIds) await deleteCollection(cid).catch(() => {});
+  }
 }
 
 /* --------------------------- Auto-analyze ----------------------------- */
