@@ -1,5 +1,6 @@
 import type { ExportFormat, PlatformId, Stats } from './types';
 import { getStats, setStats } from './storage';
+import { noteEngagedAction } from './review';
 
 export function monthKey(date = new Date()): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
@@ -38,6 +39,8 @@ export async function recordExport(format: ExportFormat, count = 1): Promise<Sta
   stats.monthly[key] = bucket;
   stats.lastActivity = Date.now();
   await setStats(stats);
+  // One export action counts once toward the review prompt, whatever `count` is.
+  await noteEngagedAction();
   return stats;
 }
 

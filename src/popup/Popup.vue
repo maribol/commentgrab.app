@@ -155,6 +155,8 @@
           </div>
         </div>
       </div>
+
+      <ReviewPrompt class="mt-3" :blocked="status === 'scraping' || status === 'error'" />
     </main>
 
     <!-- footer: mini stats -->
@@ -217,6 +219,7 @@ import SpToaster from '@/ui/components/SpToaster.vue';
 import PlatformGlyph from '@/ui/components/PlatformGlyph.vue';
 import BrandMark from '@/ui/components/BrandMark.vue';
 import BoardPicker from '@/ui/components/BoardPicker.vue';
+import ReviewPrompt from '@/ui/components/ReviewPrompt.vue';
 import { useToast } from '@/ui/composables/useToast';
 
 const toast = useToast();

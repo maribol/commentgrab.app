@@ -135,6 +135,8 @@
               <span>{{ flashMsg }}</span>
             </div>
           </Transition>
+
+          <ReviewPrompt class="mt-[12px]" :blocked="status === 'scraping' || status === 'error' || (!!flashMsg && flashErr)" />
         </div>
 
         <!-- footer -->
@@ -223,6 +225,7 @@ import SpProgress from '@/ui/components/SpProgress.vue';
 import PlatformGlyph from '@/ui/components/PlatformGlyph.vue';
 import BrandMark from '@/ui/components/BrandMark.vue';
 import BoardPicker from '@/ui/components/BoardPicker.vue';
+import ReviewPrompt from '@/ui/components/ReviewPrompt.vue';
 import { widgetState } from '../state';
 import { scrapeLocal } from '../scrape-local';
 

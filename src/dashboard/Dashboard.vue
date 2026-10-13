@@ -171,6 +171,7 @@
 
     <CommandPalette v-model:open="paletteOpen" :collections="collections" />
     <RunConfirm />
+    <ReviewPrompt floating />
     <SpToaster />
   </div>
 </template>
@@ -190,6 +191,7 @@ import Onboarding from './Onboarding.vue';
 import CommandPalette from './components/CommandPalette.vue';
 import RunConfirm from './components/RunConfirm.vue';
 import WhatsNew from './components/WhatsNew.vue';
+import ReviewPrompt from '@/ui/components/ReviewPrompt.vue';
 import wordmark from '@/assets/brand/wordmark.svg';
 import wordmarkDark from '@/assets/brand/wordmark-dark.svg';
 import { listCollections } from '@/shared/storage';
