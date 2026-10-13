@@ -1,3 +1,3 @@
 <template>
-  <span class="commentgrab-text"><slot /></span>
+  <span class="text-commentgrab-violet"><slot /></span>
 </template>

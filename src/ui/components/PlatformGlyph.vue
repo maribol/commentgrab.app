@@ -1,6 +1,6 @@
 <template>
   <span
-    class="inline-flex shrink-0 items-center justify-center rounded-xl"
+    class="inline-flex shrink-0 items-center justify-center rounded-lg"
     :style="{ width: box, height: box, backgroundColor: tint }"
   >
     <component :is="glyph" :style="{ width: inner, height: inner, color }" :stroke-width="2.2" />

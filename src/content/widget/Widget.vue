@@ -9,19 +9,19 @@
     <Transition name="panel">
       <div
         v-if="open"
-        class="relative mb-[12px] w-[336px] overflow-hidden rounded-[18px] border border-black/[0.07] bg-white text-ink-900 shadow-widget"
+        class="relative mb-[12px] w-[336px] overflow-hidden rounded-[14px] border border-line bg-surface text-ink shadow-widget"
       >
         <!-- header -->
-        <div class="flex items-center justify-between border-b border-black/[0.06] px-[16px] py-[12px]">
+        <div class="flex items-center justify-between border-b border-line px-[16px] py-[12px]">
           <div class="flex items-center gap-[8px]">
             <BrandMark :size="28" />
-            <span class="text-[15px] font-bold tracking-tight"><span class="commentgrab-text">CommentGrab</span></span>
+            <span class="text-[15px] font-semibold tracking-tight text-ink">CommentGrab</span>
           </div>
           <div class="flex items-center gap-[2px]">
-            <button class="rounded-[8px] p-[6px] text-ink-400 outline-none transition hover:bg-black/[0.05] hover:text-ink-700" :title="t('common.minimize')" @click="open = false">
+            <button class="rounded-[8px] p-[6px] text-faint outline-none transition hover:bg-canvas-2 hover:text-ink-soft focus-visible:ring-2 focus-visible:ring-brand-500/30" :title="t('common.minimize')" @click="open = false">
               <ChevronDown class="h-[16px] w-[16px]" />
             </button>
-            <button class="rounded-[8px] p-[6px] text-ink-400 outline-none transition hover:bg-black/[0.05] hover:text-ink-700" :title="t('common.hide')" @click="hidden = true">
+            <button class="rounded-[8px] p-[6px] text-faint outline-none transition hover:bg-canvas-2 hover:text-ink-soft focus-visible:ring-2 focus-visible:ring-brand-500/30" :title="t('common.hide')" @click="hidden = true">
               <X class="h-[16px] w-[16px]" />
             </button>
           </div>
@@ -33,8 +33,8 @@
         <div class="flex items-start gap-[12px] px-[16px] pb-[12px] pt-[14px]">
           <PlatformGlyph :platform="platform!" :size="38" />
           <div class="min-w-0 flex-1">
-            <div class="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-400">{{ platformLabel(platform!) }}</div>
-            <div class="line-clamp-2 text-[14px] font-medium leading-snug text-ink-900">{{ widgetState.pageTitle }}</div>
+            <div class="text-[11px] font-medium uppercase tracking-[0.06em] text-faint">{{ platformLabel(platform!) }}</div>
+            <div class="line-clamp-2 text-[14px] font-medium leading-snug text-ink">{{ widgetState.pageTitle }}</div>
           </div>
         </div>
 
@@ -42,16 +42,16 @@
         <div class="px-[16px] pb-[16px]">
           <!-- idle -->
           <template v-if="status === 'idle'">
-            <button class="flex w-full items-center justify-center gap-[8px] rounded-[12px] bg-ink-900 py-[11px] text-[14px] font-semibold text-white outline-none transition hover:bg-ink-700 active:scale-[0.99]" @click="doScrape()">
+            <button class="flex w-full items-center justify-center gap-[8px] rounded-[10px] bg-brand-500 py-[11px] text-[14px] font-semibold text-white outline-none transition hover:bg-brand-600 focus-visible:ring-4 focus-visible:ring-brand-500/20 active:scale-[0.99]" @click="doScrape()">
               <Sparkles class="h-[16px] w-[16px]" />
               <span>{{ t('pop.scrape', { unit }) }}</span>
             </button>
-            <p class="mt-[8px] text-center text-[11px] text-ink-400">Runs on this page · stays on your device</p>
+            <p class="mt-[8px] text-center text-[11px] text-faint">Runs on this page · stays on your device</p>
           </template>
 
           <!-- scraping -->
           <template v-else-if="status === 'scraping'">
-            <div class="flex items-center gap-[8px] text-[14px] font-medium text-ink-700">
+            <div class="flex items-center gap-[8px] text-[14px] font-medium text-ink-soft">
               <Loader2 class="h-[16px] w-[16px] animate-spin-slow text-commentgrab-violet" />
               <span class="truncate">{{ progress.message || t('pop.working') }}</span>
             </div>
@@ -59,7 +59,7 @@
               <SpProgress :value="progress.percent" :indeterminate="progress.percent <= 5" />
             </div>
             <button
-              class="mt-[12px] flex w-full items-center justify-center gap-[6px] rounded-[12px] border border-black/[0.1] bg-white py-[9px] text-[13px] font-semibold text-ink-700 outline-none transition hover:bg-slate-50 disabled:opacity-50"
+              class="mt-[12px] flex w-full items-center justify-center gap-[6px] rounded-[10px] border border-line-strong bg-surface py-[9px] text-[13px] font-semibold text-ink-soft outline-none transition hover:bg-canvas-2 disabled:opacity-50"
               :disabled="stopping"
               @click="stop()"
             >
@@ -71,15 +71,15 @@
           <!-- done -->
           <template v-else-if="status === 'done' && result">
             <div class="mb-[12px] flex items-baseline gap-[8px]">
-              <span class="text-[24px] font-bold tracking-tight commentgrab-text">{{ result.comments.length.toLocaleString() }}</span>
-              <span class="text-[14px] text-ink-500">{{ t('pop.ready', { unit }) }}</span>
+              <span class="text-[24px] font-semibold tracking-tight text-ink">{{ result.comments.length.toLocaleString() }}</span>
+              <span class="text-[14px] text-muted">{{ t('pop.ready', { unit }) }}</span>
             </div>
 
             <div class="grid grid-cols-4 gap-[8px]">
               <button
                 v-for="f in formats"
                 :key="f.id"
-                class="flex flex-col items-center gap-[5px] rounded-[12px] border border-black/[0.08] bg-white py-[10px] text-[11px] font-semibold text-ink-700 outline-none transition hover:border-commentgrab-violet/45 hover:bg-violet-50 hover:text-commentgrab-violet"
+                class="flex flex-col items-center gap-[5px] rounded-[10px] border border-line-strong bg-surface py-[10px] text-[11px] font-semibold text-ink-soft outline-none transition hover:border-brand-400 hover:bg-commentgrab-soft hover:text-commentgrab-violet"
                 @click="exportAs(f.id)"
               >
                 <component :is="f.icon" class="h-[18px] w-[18px]" />
@@ -89,16 +89,16 @@
 
             <div class="mt-[10px] grid grid-cols-2 gap-[8px]">
               <button
-                class="inline-flex w-full items-center justify-center gap-[6px] rounded-[12px] border py-[9px] text-[13px] font-semibold outline-none transition"
+                class="inline-flex w-full items-center justify-center gap-[6px] rounded-[10px] border py-[9px] text-[13px] font-semibold outline-none transition"
                 :class="savedId
-                  ? 'border-emerald-500/35 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                  : 'border-black/[0.08] bg-white text-ink-700 hover:bg-slate-50'"
+                  ? 'border-[#1f7a45]/25 bg-[#e7f5ec] text-[#1f7a45] dark:bg-[#1f7a45]/20 dark:text-[#6fcf97]'
+                  : 'border-line-strong bg-surface text-ink-soft hover:bg-canvas-2'"
                 @click="openPicker('save')"
               >
                 <component :is="savedId ? BookmarkCheck : Bookmark" class="h-[16px] w-[16px]" />
                 <span>{{ savedId ? t('common.saved') : t('common.save') }}</span>
               </button>
-              <button class="inline-flex items-center justify-center gap-[6px] rounded-[12px] border border-black/[0.08] bg-white py-[9px] text-[13px] font-semibold text-ink-700 outline-none transition hover:bg-slate-50" @click="analyze()">
+              <button class="inline-flex items-center justify-center gap-[6px] rounded-[10px] border border-line-strong bg-surface py-[9px] text-[13px] font-semibold text-ink-soft outline-none transition hover:bg-canvas-2" @click="analyze()">
                 <Wand class="h-[16px] w-[16px]" />
                 <span>{{ t('common.analyze') }}</span>
               </button>
@@ -109,7 +109,7 @@
                 <ExternalLink class="h-[12px] w-[12px]" />
                 <span>{{ t('common.openInDashboard') }}</span>
               </button>
-              <button class="flex items-center gap-[6px] text-ink-400 outline-none transition hover:text-ink-700" @click="doScrape()">
+              <button class="flex items-center gap-[6px] text-muted outline-none transition hover:text-ink" @click="doScrape()">
                 <RefreshCw class="h-[12px] w-[12px]" />
                 <span>{{ t('common.rescrape') }}</span>
               </button>
@@ -118,11 +118,11 @@
 
           <!-- error -->
           <template v-else-if="status === 'error'">
-            <div class="flex items-start gap-[8px] rounded-[12px] bg-rose-50 px-[12px] py-[10px] text-[14px] text-rose-700">
+            <div class="flex items-start gap-[8px] rounded-[10px] bg-[#fdeaea] px-[12px] py-[10px] text-[14px] text-[#c23a3a] dark:bg-[#c23a3a]/20 dark:text-[#f08a8a]">
               <AlertCircle class="mt-[2px] h-[16px] w-[16px] shrink-0" />
               <span>{{ error }}</span>
             </div>
-            <button class="mt-[10px] flex w-full items-center justify-center gap-[6px] rounded-[12px] border border-black/[0.08] bg-white py-[10px] text-[14px] font-semibold text-ink-700 outline-none transition hover:bg-slate-50" @click="doScrape()">
+            <button class="mt-[10px] flex w-full items-center justify-center gap-[6px] rounded-[10px] border border-line-strong bg-surface py-[10px] text-[14px] font-semibold text-ink-soft outline-none transition hover:bg-canvas-2" @click="doScrape()">
               <RefreshCw class="h-[16px] w-[16px]" />
               <span>{{ t('pop.tryAgain') }}</span>
             </button>
@@ -130,7 +130,7 @@
 
           <!-- inline flash -->
           <Transition name="panel">
-            <div v-if="flashMsg" class="mt-[10px] flex items-center gap-[6px] text-[12px] font-medium" :class="flashErr ? 'text-rose-600' : 'text-emerald-600'">
+            <div v-if="flashMsg" class="mt-[10px] flex items-center gap-[6px] text-[12px] font-medium" :class="flashErr ? 'text-[#c23a3a] dark:text-[#f08a8a]' : 'text-[#1f7a45] dark:text-[#6fcf97]'">
               <CheckCircle2 v-if="!flashErr" class="h-[14px] w-[14px]" />
               <AlertCircle v-else class="h-[14px] w-[14px]" />
               <span>{{ flashMsg }}</span>
@@ -139,12 +139,12 @@
         </div>
 
         <!-- footer -->
-        <div class="flex items-center justify-between border-t border-black/[0.06] bg-slate-50/70 px-[16px] py-[10px]">
-          <button class="flex items-center gap-[6px] text-[12px] font-medium text-ink-500 outline-none transition hover:text-ink-900" @click="openDashboard()">
+        <div class="flex items-center justify-between border-t border-line bg-canvas px-[16px] py-[10px]">
+          <button class="flex items-center gap-[6px] text-[12px] font-medium text-muted outline-none transition hover:text-ink" @click="openDashboard()">
             <LayoutDashboard class="h-[14px] w-[14px]" />
             <span>{{ t('common.dashboard') }}</span>
           </button>
-          <span class="flex items-center gap-[4px] text-[11px] text-ink-300">
+          <span class="flex items-center gap-[4px] text-[11px] text-faint">
             <Lock class="h-[12px] w-[12px]" />
             {{ t('pop.localOnly') }}
           </span>
@@ -153,12 +153,12 @@
         <!-- board picker overlay -->
         <div
           v-if="boardPickerOpen"
-          class="absolute inset-0 z-30 flex items-center justify-center bg-ink-900/25 p-[16px]"
+          class="absolute inset-0 z-30 flex items-center justify-center bg-ink/20 p-[16px]"
           @click.self="boardPickerOpen = false"
         >
           <div class="w-full max-w-[280px]">
             <BoardPicker ref="picker" v-model="pickedBoards" />
-            <button class="mt-[8px] flex w-full items-center justify-center gap-[6px] rounded-[12px] bg-ink-900 px-[12px] py-[9px] text-[13px] font-semibold text-white transition hover:bg-ink-700" @click="confirmSave()">
+            <button class="mt-[8px] flex w-full items-center justify-center gap-[6px] rounded-[10px] bg-brand-500 px-[12px] py-[9px] text-[13px] font-semibold text-white transition hover:bg-brand-600" @click="confirmSave()">
               <Wand v-if="pickerMode === 'analyze'" class="h-[15px] w-[15px]" />
               {{ pickerMode === 'analyze' ? t('common.saveAndAnalyze') : savedId ? t('common.updateBoards') : t('common.save') }}
             </button>
@@ -167,15 +167,25 @@
       </div>
     </Transition>
 
-    <!-- Collapsed launcher -->
-    <button
-      v-if="!open"
-      class="group flex items-center gap-[8px] rounded-full bg-ink-900 py-[10px] pl-[10px] pr-[16px] text-white shadow-widget outline-none transition hover:bg-ink-700 active:scale-95"
-      @click="open = true"
-    >
-      <BrandMark :size="24" />
-      <span class="text-[14px] font-semibold">Export {{ unit }}</span>
-    </button>
+    <!-- Collapsed launcher: a light pill with a dismiss X at its top-right corner
+         (shown on hover/focus, always reachable by keyboard). -->
+    <div v-if="!open" class="group relative">
+      <button
+        class="flex items-center gap-[8px] rounded-full border border-line-strong bg-surface py-[7px] pl-[8px] pr-[16px] text-ink shadow-widget outline-none transition hover:bg-canvas-2 focus-visible:ring-4 focus-visible:ring-brand-500/20 active:scale-[0.97]"
+        @click="open = true"
+      >
+        <BrandMark :size="24" />
+        <span class="text-[14px] font-semibold">Export {{ unit }}</span>
+      </button>
+      <button
+        class="absolute -right-[6px] -top-[6px] flex h-[20px] w-[20px] items-center justify-center rounded-full border border-line-strong bg-surface text-muted opacity-0 outline-none transition hover:bg-canvas-2 hover:text-ink focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-brand-500/30 group-hover:opacity-100"
+        :title="t('common.hide')"
+        :aria-label="t('common.hide')"
+        @click.stop="hidden = true"
+      >
+        <X class="h-[12px] w-[12px]" />
+      </button>
+    </div>
   </div>
 </template>
 
@@ -236,7 +246,8 @@ const flashMsg = ref('');
 const flashErr = ref(false);
 
 const platform = computed(() => widgetState.platform);
-const visible = computed(() => !hidden.value && widgetState.enabled && !!platform.value);
+const isFullscreen = ref(false);
+const visible = computed(() => !hidden.value && widgetState.enabled && !!platform.value && !isFullscreen.value);
 const unit = computed(() => (platform.value ? PLATFORM_META[platform.value].unit : 'comments'));
 
 const formats: Array<{ id: ExportFormat; label: string; icon: typeof FileSpreadsheet }> = [
@@ -253,12 +264,25 @@ function bumpProgress(message: string, percent: number): void {
   progress.percent = Math.max(progress.percent, percent);
 }
 
+/** Hide the widget while the page is fullscreen (e.g. a YouTube video); it returns on exit. */
+function syncFullscreen(): void {
+  const doc = document as Document & { webkitFullscreenElement?: Element | null };
+  isFullscreen.value = !!(document.fullscreenElement || doc.webkitFullscreenElement);
+}
+
 let unsub: (() => void) | undefined;
 onMounted(async () => {
+  syncFullscreen();
+  document.addEventListener('fullscreenchange', syncFullscreen);
+  document.addEventListener('webkitfullscreenchange', syncFullscreen);
   settings.value = await getSettings();
   unsub = onProgress((p) => bumpProgress(p.message, p.percent));
 });
-onUnmounted(() => unsub?.());
+onUnmounted(() => {
+  unsub?.();
+  document.removeEventListener('fullscreenchange', syncFullscreen);
+  document.removeEventListener('webkitfullscreenchange', syncFullscreen);
+});
 
 watch(
   () => widgetState.url,

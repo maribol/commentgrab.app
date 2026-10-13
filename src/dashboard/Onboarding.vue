@@ -1,42 +1,42 @@
 <template>
-  <div class="commentgrab-bg flex min-h-screen items-center justify-center p-6 font-sans text-ink-900">
+  <div class="flex min-h-screen items-center bg-shell justify-center p-6 font-sans text-ink">
     <div class="w-full max-w-lg animate-fade-up">
       <div class="mb-6 flex items-center gap-3">
-        <BrandMark :size="44" class="shadow-glow" />
+        <BrandMark :size="44" />
         <div class="leading-none">
-          <div class="text-xl font-bold tracking-tight"><span class="commentgrab-text">CommentGrab</span></div>
-          <div class="mt-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-400">{{ t('nav.commentExporter') }}</div>
+          <div class="text-xl font-bold tracking-tight text-ink">CommentGrab</div>
+          <div class="mt-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-faint">{{ t('nav.commentExporter') }}</div>
         </div>
       </div>
 
       <SpCard class="p-7">
-        <h1 class="text-2xl font-bold tracking-tight text-ink-900">{{ t('onb.welcome') }}</h1>
-        <p class="mt-2 text-sm leading-relaxed text-ink-500">{{ t('onb.subtitle') }}</p>
+        <h1 class="text-[22px] font-semibold tracking-tight text-ink">{{ t('onb.welcome') }}</h1>
+        <p class="mt-2 text-sm leading-relaxed text-muted">{{ t('onb.subtitle') }}</p>
 
         <!-- language -->
         <div class="mt-6">
-          <div class="text-sm font-bold text-ink-900">{{ t('onb.languageTitle') }}</div>
+          <div class="text-sm font-semibold text-ink">{{ t('onb.languageTitle') }}</div>
           <div class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
             <button
               v-for="l in LOCALES"
               :key="l.id"
-              class="rounded-xl border px-3 py-2.5 text-sm font-semibold transition"
+              class="rounded-lg border px-3 py-2.5 text-sm font-semibold transition"
               :class="lang === l.id
-                ? 'border-commentgrab-fuchsia/40 bg-commentgrab-soft text-commentgrab-violet'
-                : 'border-black/[0.08] bg-white text-ink-600 hover:border-black/[0.16] hover:text-ink-900'"
+                ? 'border-brand-200 bg-brand-50 text-brand-600'
+                : 'border-line bg-surface text-muted hover:border-line-strong hover:text-ink'"
               @click="pickLang(l.id)"
             >{{ l.label }}</button>
           </div>
-          <p class="mt-2 text-xs text-ink-400">{{ t('onb.languageHint') }}</p>
+          <p class="mt-2 text-xs text-faint">{{ t('onb.languageHint') }}</p>
         </div>
 
         <!-- api key (optional) -->
         <div class="mt-6">
-          <div class="flex items-center gap-2 text-sm font-bold text-ink-900">
+          <div class="flex items-center gap-2 text-sm font-semibold text-ink">
             {{ t('onb.apiTitle') }}
-            <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-ink-400">{{ t('onb.apiOptional') }}</span>
+            <span class="rounded-md bg-canvas-2 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-faint">{{ t('onb.apiOptional') }}</span>
           </div>
-          <p class="mt-1.5 text-xs leading-relaxed text-ink-500">{{ t('onb.apiHint') }}</p>
+          <p class="mt-1.5 text-xs leading-relaxed text-muted">{{ t('onb.apiHint') }}</p>
           <div class="mt-3 flex gap-2">
             <input
               v-model="key"
@@ -52,7 +52,7 @@
         </div>
 
         <div class="mt-7 flex items-center justify-end gap-4">
-          <button class="text-sm font-medium text-ink-400 transition hover:text-ink-700" @click="finish()">{{ t('onb.skipKey') }}</button>
+          <button class="text-sm font-medium text-faint transition hover:text-ink-soft" @click="finish()">{{ t('onb.skipKey') }}</button>
           <SpButton :icon="ArrowRight" @click="finish()">{{ t('onb.getStarted') }}</SpButton>
         </div>
       </SpCard>

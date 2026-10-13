@@ -3,57 +3,57 @@
     <Transition name="palette">
       <div
         v-if="open"
-        class="fixed inset-0 z-50 flex items-start justify-center bg-ink-900/40 px-4 pt-[12vh] backdrop-blur-sm"
+        class="fixed inset-0 z-50 flex items-start justify-center bg-black/40 px-4 pt-[12vh]"
         @click.self="close"
       >
-        <div class="w-full max-w-xl overflow-hidden rounded-2xl border border-black/[0.08] bg-white shadow-2xl">
+        <div class="w-full max-w-xl overflow-hidden rounded-xl border border-line bg-surface">
           <!-- input -->
-          <div class="flex items-center gap-3 border-b border-black/[0.06] px-4 py-3.5">
-            <Search class="h-4.5 w-4.5 shrink-0 text-ink-300" />
+          <div class="flex items-center gap-3 border-b border-line px-4 py-3.5">
+            <Search class="h-4.5 w-4.5 shrink-0 text-faint" />
             <input
               ref="inputEl"
               v-model="query"
               type="text"
               :placeholder="t('nav.searchSaved')"
-              class="flex-1 bg-transparent text-[15px] text-ink-900 outline-none placeholder:text-ink-300"
+              class="flex-1 bg-transparent text-[15px] text-ink outline-none placeholder:text-faint"
               @keydown="onKey"
             />
-            <kbd class="rounded border border-black/10 bg-slate-50 px-1.5 py-0.5 text-[10px] font-medium text-ink-400">esc</kbd>
+            <kbd class="rounded border border-line bg-canvas px-1.5 py-0.5 text-[10px] font-medium text-faint">esc</kbd>
           </div>
 
           <!-- results -->
           <div ref="listEl" class="scroll-thin max-h-[56vh] overflow-y-auto py-2">
             <template v-for="row in rows" :key="row.key">
-              <div v-if="row.type === 'header'" class="px-4 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-300">
+              <div v-if="row.type === 'header'" class="px-4 pb-1 pt-3 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-faint">
                 {{ row.label }}
               </div>
               <button
                 v-else
                 :data-idx="row.index"
                 class="flex w-full items-center gap-3 px-4 py-2.5 text-left transition"
-                :class="row.index === selected ? 'bg-commentgrab-soft' : 'hover:bg-black/[0.03]'"
+                :class="row.index === selected ? 'bg-canvas-2' : 'hover:bg-canvas-2'"
                 @mousemove="selected = row.index"
                 @click="choose(row.item)"
               >
                 <img v-if="row.item.favicon" :src="row.item.favicon" alt="" class="h-5 w-5 shrink-0 rounded" />
                 <PlatformGlyph v-else-if="row.item.platform" :platform="row.item.platform" :size="22" />
-                <component :is="row.item.icon" v-else class="h-[18px] w-[18px] shrink-0 text-ink-400" />
+                <component :is="row.item.icon" v-else class="h-[18px] w-[18px] shrink-0 text-faint" />
                 <div class="min-w-0 flex-1">
-                  <div class="truncate text-sm font-medium text-ink-900">{{ row.item.label }}</div>
-                  <div v-if="row.item.sub" class="truncate text-xs text-ink-400">{{ row.item.sub }}</div>
+                  <div class="truncate text-sm font-medium text-ink">{{ row.item.label }}</div>
+                  <div v-if="row.item.sub" class="truncate text-xs text-faint">{{ row.item.sub }}</div>
                 </div>
-                <span class="shrink-0 text-[11px] font-medium text-ink-300">{{ row.item.group }}</span>
+                <span class="shrink-0 text-[11px] font-medium text-faint">{{ row.item.group }}</span>
               </button>
             </template>
 
-            <div v-if="!flat.length" class="px-4 py-10 text-center text-sm text-ink-400">{{ t('cmd.noMatches') }}</div>
+            <div v-if="!flat.length" class="px-4 py-10 text-center text-sm text-faint">{{ t('cmd.noMatches') }}</div>
           </div>
 
           <!-- footer -->
-          <div class="flex items-center gap-4 border-t border-black/[0.06] bg-slate-50/70 px-4 py-2.5 text-[11px] text-ink-400">
-            <span class="flex items-center gap-1"><kbd class="rounded border border-black/10 bg-white px-1 py-0.5">↑</kbd><kbd class="rounded border border-black/10 bg-white px-1 py-0.5">↓</kbd> {{ t('cmd.navigate') }}</span>
-            <span class="flex items-center gap-1"><kbd class="rounded border border-black/10 bg-white px-1 py-0.5">↵</kbd> {{ t('cmd.select') }}</span>
-            <span class="flex items-center gap-1"><kbd class="rounded border border-black/10 bg-white px-1 py-0.5">esc</kbd> {{ t('cmd.close') }}</span>
+          <div class="flex items-center gap-4 border-t border-line bg-canvas px-4 py-2.5 text-[11px] text-faint">
+            <span class="flex items-center gap-1"><kbd class="rounded border border-line bg-surface px-1 py-0.5">↑</kbd><kbd class="rounded border border-line bg-surface px-1 py-0.5">↓</kbd> {{ t('cmd.navigate') }}</span>
+            <span class="flex items-center gap-1"><kbd class="rounded border border-line bg-surface px-1 py-0.5">↵</kbd> {{ t('cmd.select') }}</span>
+            <span class="flex items-center gap-1"><kbd class="rounded border border-line bg-surface px-1 py-0.5">esc</kbd> {{ t('cmd.close') }}</span>
           </div>
         </div>
       </div>

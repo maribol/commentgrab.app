@@ -3,25 +3,25 @@
     <!-- ===================== PICKER ===================== -->
     <template v-if="!id">
       <header class="mb-6">
-        <h1 class="text-2xl font-bold tracking-tight text-ink-900">{{ t('an.title') }}</h1>
-        <p class="mt-1 text-sm text-ink-500">{{ t('an.pickerSubtitle') }}</p>
+        <h1 class="text-[22px] font-semibold tracking-tight text-ink">{{ t('an.title') }}</h1>
+        <p class="mt-1 text-[13.5px] text-muted">{{ t('an.pickerSubtitle') }}</p>
       </header>
 
       <div v-if="collections.length" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <button
           v-for="c in collections"
           :key="c.id"
-          class="flex flex-col rounded-2xl border border-black/[0.07] bg-white p-4 text-left transition hover:border-black/[0.16] hover:shadow-sm"
+          class="flex flex-col rounded-xl border border-line bg-surface p-4 text-left transition hover:border-line-strong"
           @click="navigate(`/analyze/${c.id}`)"
         >
           <div class="flex items-start gap-3">
             <PlatformGlyph :platform="c.platform" :size="40" />
             <div class="min-w-0 flex-1">
-              <div class="line-clamp-2 text-sm font-semibold leading-snug text-ink-900">{{ c.title }}</div>
-              <div class="mt-0.5 text-xs text-ink-400">{{ c.commentCount.toLocaleString() }} {{ t('common.comments') }}</div>
+              <div class="line-clamp-2 text-sm font-semibold leading-snug text-ink">{{ c.title }}</div>
+              <div class="mt-0.5 text-xs text-faint">{{ c.commentCount.toLocaleString() }} {{ t('common.comments') }}</div>
             </div>
           </div>
-          <div class="mt-4 flex items-center gap-1.5 border-t border-black/[0.05] pt-3 text-xs font-semibold" :class="c.analysis ? 'text-commentgrab-violet' : 'text-ink-400'">
+          <div class="mt-4 flex items-center gap-1.5 border-t border-line pt-3 text-xs font-semibold" :class="c.analysis ? 'text-brand-600' : 'text-faint'">
             <component :is="c.analysis ? Sparkles : WandSparkles" class="h-3.5 w-3.5" />
             {{ c.analysis ? t('an.analyzedLabel') : t('an.notAnalyzed') }}
           </div>
@@ -38,15 +38,15 @@
 
     <!-- ===================== DETAIL ===================== -->
     <template v-else-if="collection">
-      <button class="mb-4 flex items-center gap-1.5 text-sm font-medium text-ink-500 transition hover:text-ink-900" @click="navigate('/analyze')">
+      <button class="mb-4 flex items-center gap-1.5 text-sm font-medium text-muted transition hover:text-ink" @click="navigate('/analyze')">
         <ArrowLeft class="h-4 w-4" /> {{ t('common.allCollections') }}
       </button>
 
       <div class="flex items-start gap-4">
         <PlatformGlyph :platform="collection.platform" :size="48" />
         <div class="min-w-0 flex-1">
-          <h1 class="text-xl font-bold leading-tight tracking-tight text-ink-900">{{ collection.title }}</h1>
-          <div class="mt-1 text-sm text-ink-500">{{ platformLabel(collection.platform) }} · {{ collection.commentCount.toLocaleString() }} {{ t('common.comments') }}</div>
+          <h1 class="text-[20px] font-semibold leading-tight tracking-tight text-ink">{{ collection.title }}</h1>
+          <div class="mt-1 text-sm text-muted">{{ platformLabel(collection.platform) }} · {{ collection.commentCount.toLocaleString() }} {{ t('common.comments') }}</div>
         </div>
         <div v-if="analysis" class="flex items-center gap-2">
           <SpButton variant="secondary" size="sm" :icon="FileText" @click="exportMd()">Export .md</SpButton>
@@ -57,37 +57,37 @@
 
       <!-- no key -->
       <SpCard v-if="!settings.openAiKey" class="mt-5 p-6">
-        <div class="flex items-center gap-2.5 text-base font-bold text-ink-900">
-          <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-50">
-            <KeyRound class="h-[18px] w-[18px] text-commentgrab-violet" />
+        <div class="flex items-center gap-2.5 text-[15px] font-semibold text-ink">
+          <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50">
+            <KeyRound class="h-[18px] w-[18px] text-brand-600" />
           </span>
           {{ t('an.connectOpenAI') }}
         </div>
-        <p class="mt-2 max-w-lg text-sm text-ink-500">{{ t('an.connectBody') }}</p>
+        <p class="mt-2 max-w-lg text-sm text-muted">{{ t('an.connectBody') }}</p>
         <SpButton class="mt-4" :icon="ArrowRight" @click="navigate('/settings')">{{ t('set.addApiKey') }}</SpButton>
       </SpCard>
 
       <!-- run CTA -->
       <SpCard v-else-if="!analysis" class="mt-5 flex flex-col items-center justify-center py-12 text-center">
-        <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-50">
-          <WandSparkles class="h-7 w-7 text-commentgrab-violet" />
+        <span class="flex h-14 w-14 items-center justify-center rounded-lg bg-brand-50">
+          <WandSparkles class="h-7 w-7 text-brand-600" />
         </span>
-        <h2 class="mt-4 text-lg font-bold text-ink-900">{{ t('an.runHeadline', { count: collection.commentCount.toLocaleString() }) }}</h2>
-        <p class="mt-1 max-w-md text-sm text-ink-500">{{ t('an.runBody') }}</p>
+        <h2 class="mt-4 text-lg font-bold text-ink">{{ t('an.runHeadline', { count: collection.commentCount.toLocaleString() }) }}</h2>
+        <p class="mt-1 max-w-md text-sm text-muted">{{ t('an.runBody') }}</p>
         <SpButton class="mt-5" :icon="Sparkles" :loading="running" @click="run()">{{ running ? t('an.analyzing') : t('an.runAnalysis') }}</SpButton>
         <p v-if="error" class="mt-3 text-sm text-rose-600">{{ error }}</p>
-        <p class="mt-2 text-xs text-ink-300">{{ t('an.using', { model: settings.openAiModel }) }}</p>
+        <p class="mt-2 text-xs text-faint">{{ t('an.using', { model: settings.openAiModel }) }}</p>
       </SpCard>
 
       <!-- results -->
       <div v-else class="mt-5 space-y-5">
         <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
           <SpCard class="lg:col-span-2">
-            <h3 class="mb-2 flex items-center gap-2 text-sm font-bold text-ink-900"><FileText class="h-4 w-4 text-commentgrab-violet" /> {{ t('an.summary') }}</h3>
-            <p class="text-sm leading-relaxed text-ink-700">{{ analysis.summary || t('an.noSummary') }}</p>
+            <h3 class="mb-2 flex items-center gap-2 text-sm font-semibold text-ink"><FileText class="h-4 w-4 text-brand-600" /> {{ t('an.summary') }}</h3>
+            <p class="text-sm leading-relaxed text-ink-soft">{{ analysis.summary || t('an.noSummary') }}</p>
           </SpCard>
           <SpCard>
-            <h3 class="mb-3 flex items-center gap-2 text-sm font-bold text-ink-900"><Gauge class="h-4 w-4 text-commentgrab-violet" /> {{ t('an.sentiment') }} <span class="ml-auto chip bg-commentgrab-soft text-ink-700">{{ analysis.sentiment.label }}</span></h3>
+            <h3 class="mb-3 flex items-center gap-2 text-sm font-semibold text-ink"><Gauge class="h-4 w-4 text-brand-600" /> {{ t('an.sentiment') }} <span class="ml-auto chip bg-brand-50 text-brand-600">{{ analysis.sentiment.label }}</span></h3>
             <SentimentBar :sentiment="analysis.sentiment" />
           </SpCard>
         </div>
@@ -105,27 +105,27 @@
         <!-- Ad angles (generated on demand) -->
         <SpCard>
           <div class="mb-3 flex items-center justify-between">
-            <h3 class="flex items-center gap-2 text-sm font-bold text-ink-900"><Megaphone class="h-4 w-4 text-commentgrab-violet" /> {{ t('an.adAngles') }}</h3>
+            <h3 class="flex items-center gap-2 text-sm font-semibold text-ink"><Megaphone class="h-4 w-4 text-brand-600" /> {{ t('an.adAngles') }}</h3>
             <div v-if="analysis.adAngles?.length" class="flex items-center gap-3">
-              <button class="text-xs font-semibold text-ink-400 transition hover:text-commentgrab-violet" @click="copyAngles()">{{ t('common.copyAll') }}</button>
+              <button class="text-xs font-semibold text-faint transition hover:text-brand-600" @click="copyAngles()">{{ t('common.copyAll') }}</button>
               <SpButton variant="secondary" size="sm" :icon="RefreshCw" :loading="anglesRunning" @click="runAngles()">{{ t('common.regenerate') }}</SpButton>
             </div>
           </div>
 
           <div v-if="analysis.adAngles?.length" class="space-y-2.5">
-            <div v-for="(a, i) in analysis.adAngles" :key="i" class="rounded-xl border border-black/[0.06] bg-white p-3.5">
+            <div v-for="(a, i) in analysis.adAngles" :key="i" class="rounded-xl border border-line bg-surface p-3.5">
               <div class="flex items-start gap-2.5">
-                <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-commentgrab-soft text-[11px] font-bold text-commentgrab-violet">{{ i + 1 }}</span>
+                <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-brand-50 text-[11px] font-bold text-brand-600">{{ i + 1 }}</span>
                 <div class="min-w-0">
-                  <div class="text-sm font-semibold text-ink-900">{{ a.angle }}</div>
-                  <div v-if="a.description" class="mt-0.5 text-sm leading-relaxed text-ink-600">{{ a.description }}</div>
+                  <div class="text-sm font-semibold text-ink">{{ a.angle }}</div>
+                  <div v-if="a.description" class="mt-0.5 text-sm leading-relaxed text-muted">{{ a.description }}</div>
                 </div>
               </div>
             </div>
           </div>
 
           <div v-else class="flex flex-col items-center justify-center py-6 text-center">
-            <p class="max-w-sm text-sm text-ink-500">{{ t('an.adAnglesEmpty') }}</p>
+            <p class="max-w-sm text-sm text-muted">{{ t('an.adAnglesEmpty') }}</p>
             <SpButton class="mt-3" size="sm" :icon="Sparkles" :loading="anglesRunning" @click="runAngles()">{{ anglesRunning ? t('an.analyzing') : t('an.generateAngles') }}</SpButton>
             <p v-if="anglesError" class="mt-2 text-sm text-rose-600">{{ anglesError }}</p>
           </div>
@@ -139,32 +139,32 @@
           <!-- customer language as chips -->
           <SpCard v-if="analysis.customerLanguage.length">
             <div class="mb-3 flex items-center justify-between">
-              <h3 class="flex items-center gap-2 text-sm font-bold text-ink-900"><MessageSquareQuote class="h-4 w-4 text-commentgrab-violet" /> {{ t('ov.customerLanguage') }}</h3>
-              <button class="text-xs font-semibold text-ink-400 transition hover:text-commentgrab-violet" @click="copyLanguage()">{{ t('common.copyAll') }}</button>
+              <h3 class="flex items-center gap-2 text-sm font-semibold text-ink"><MessageSquareQuote class="h-4 w-4 text-brand-600" /> {{ t('ov.customerLanguage') }}</h3>
+              <button class="text-xs font-semibold text-faint transition hover:text-brand-600" @click="copyLanguage()">{{ t('common.copyAll') }}</button>
             </div>
             <div class="flex flex-wrap gap-2">
-              <span v-for="(p, i) in analysis.customerLanguage" :key="i" class="chip bg-slate-100 text-ink-700">"{{ p }}"</span>
+              <span v-for="(p, i) in analysis.customerLanguage" :key="i" class="chip bg-canvas-2 text-ink-soft">"{{ p }}"</span>
             </div>
           </SpCard>
         </div>
 
         <!-- themes -->
         <SpCard v-if="analysis.topThemes.length">
-          <h3 class="mb-4 flex items-center gap-2 text-sm font-bold text-ink-900"><Hash class="h-4 w-4 text-commentgrab-violet" /> {{ t('an.themes') }}</h3>
+          <h3 class="mb-4 flex items-center gap-2 text-sm font-semibold text-ink"><Hash class="h-4 w-4 text-brand-600" /> {{ t('an.themes') }}</h3>
           <div class="space-y-3">
             <div v-for="t in analysis.topThemes" :key="t.theme">
               <div class="mb-1 flex items-center justify-between text-sm">
-                <span class="font-medium text-ink-700">{{ t.theme }}</span>
-                <span class="text-ink-400">{{ t.mentions }}</span>
+                <span class="font-medium text-ink-soft">{{ t.theme }}</span>
+                <span class="text-faint">{{ t.mentions }}</span>
               </div>
-              <div class="h-2 w-full overflow-hidden rounded-full bg-slate-100">
-                <div class="h-full rounded-full bg-commentgrab-violet" :style="{ width: `${themePct(t.mentions)}%` }" />
+              <div class="h-2 w-full overflow-hidden rounded-full bg-canvas-2">
+                <div class="h-full rounded-full bg-brand-500" :style="{ width: `${themePct(t.mentions)}%` }" />
               </div>
             </div>
           </div>
         </SpCard>
 
-        <p class="text-center text-xs text-ink-300">
+        <p class="text-center text-xs text-faint">
           Analyzed {{ analysis.commentsAnalyzed }} comments with {{ analysis.model }} · {{ formatDateTime(analysis.createdAt) }}<template v-if="analysis.tokensIn || analysis.tokensOut"> · {{ (analysis.tokensIn ?? 0).toLocaleString() }} tokens in / {{ (analysis.tokensOut ?? 0).toLocaleString() }} out</template>
         </p>
       </div>

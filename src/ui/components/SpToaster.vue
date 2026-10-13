@@ -4,13 +4,13 @@
       <div
         v-for="t in toasts"
         :key="t.id"
-        class="pointer-events-auto flex items-start gap-3 rounded-xl border border-black/5 bg-white/95 p-3 pr-4 shadow-soft backdrop-blur"
+        class="pointer-events-auto flex items-start gap-3 rounded-xl border border-line bg-surface p-3 pr-4"
       >
         <span class="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full" :class="iconWrap(t.type)">
           <component :is="iconFor(t.type)" class="h-3.5 w-3.5" />
         </span>
-        <p class="flex-1 text-sm leading-snug text-ink-700">{{ t.message }}</p>
-        <button class="text-ink-300 transition hover:text-ink-500" @click="dismiss(t.id)">
+        <p class="flex-1 text-sm leading-snug text-ink-soft">{{ t.message }}</p>
+        <button class="text-faint transition hover:text-muted" @click="dismiss(t.id)">
           <X class="h-4 w-4" />
         </button>
       </div>
@@ -29,10 +29,10 @@ function iconFor(type: ToastType) {
 }
 function iconWrap(type: ToastType) {
   return type === 'success'
-    ? 'bg-emerald-100 text-emerald-600'
+    ? 'bg-[#e7f5ec] text-[#1f7a45] dark:bg-[#1f7a45]/20 dark:text-[#6fcf97]'
     : type === 'error'
-      ? 'bg-rose-100 text-rose-600'
-      : 'bg-violet-100 text-violet-600';
+      ? 'bg-[#fdeaea] text-[#c23a3a] dark:bg-[#c23a3a]/20 dark:text-[#f08a8a]'
+      : 'bg-commentgrab-soft text-commentgrab-violet';
 }
 </script>
 

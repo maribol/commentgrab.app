@@ -1,12 +1,12 @@
 <template>
-  <div class="commentgrab-bg relative flex w-[384px] flex-col font-sans text-ink-900">
+  <div class="commentgrab-bg relative flex w-[384px] flex-col font-sans text-ink">
     <!-- header -->
     <header class="flex items-center justify-between px-5 pt-4">
       <div class="flex items-center gap-2">
-        <BrandMark :size="28" class="shadow-glow" />
+        <BrandMark :size="28" />
         <div class="leading-none">
-          <div class="text-[15px] font-bold tracking-tight"><span class="commentgrab-text">CommentGrab</span></div>
-          <div class="mt-0.5 text-[10px] font-medium uppercase tracking-wider text-ink-400">{{ t('nav.commentExporter') }}</div>
+          <div class="text-[15px] font-semibold tracking-tight text-ink">CommentGrab</div>
+          <div class="mt-0.5 text-[10px] font-medium uppercase tracking-[0.08em] text-faint">{{ t('nav.commentExporter') }}</div>
         </div>
       </div>
       <button class="btn-ghost h-8 rounded-lg px-2.5 text-xs font-semibold" :title="t('common.openDashboardTip')" @click="openDashboard()">
@@ -21,14 +21,14 @@
         <div class="flex items-start gap-3">
           <PlatformGlyph :platform="platform" :size="40" />
           <div class="min-w-0 flex-1">
-            <div class="text-[11px] font-semibold uppercase tracking-wide text-ink-400">{{ t('pop.detected', { platform: platformLabel(platform) }) }}</div>
-            <div class="line-clamp-2 text-sm font-medium leading-snug text-ink-900">{{ pageTitle }}</div>
+            <div class="text-[11px] font-medium uppercase tracking-[0.06em] text-faint">{{ t('pop.detected', { platform: platformLabel(platform) }) }}</div>
+            <div class="line-clamp-2 text-sm font-medium leading-snug text-ink">{{ pageTitle }}</div>
           </div>
         </div>
 
         <!-- idle -->
         <template v-if="status === 'idle'">
-          <div v-if="existing" class="mt-3 flex items-center justify-between rounded-xl bg-commentgrab-soft px-3 py-2 text-xs">
+          <div v-if="existing" class="mt-3 flex items-center justify-between rounded-lg bg-commentgrab-soft px-3 py-2 text-xs">
             <span class="font-semibold text-commentgrab-violet">{{ t('pop.savedUnit', { count: existing.commentCount.toLocaleString(), unit }) }}</span>
             <button class="font-semibold text-commentgrab-violet hover:underline" @click="openDashboard(`/saved/${existing.id}`)">{{ t('common.open') }}</button>
           </div>
@@ -37,7 +37,7 @@
 
         <!-- scraping -->
         <template v-else-if="status === 'scraping'">
-          <div class="mt-4 flex items-center gap-2 text-sm font-medium text-ink-700">
+          <div class="mt-4 flex items-center gap-2 text-sm font-medium text-ink-soft">
             <Loader2 class="h-4 w-4 animate-spin-slow text-commentgrab-violet" />
             <span class="truncate">{{ progress.message || t('pop.working') }}</span>
           </div>
@@ -50,8 +50,8 @@
         <!-- done -->
         <template v-else-if="status === 'done' && result">
           <div class="mt-4 mb-3 flex items-baseline gap-2">
-            <span class="text-3xl font-bold tracking-tight commentgrab-text">{{ result.comments.length.toLocaleString() }}</span>
-            <span class="text-sm text-ink-500">{{ t('pop.ready', { unit }) }}</span>
+            <span class="text-3xl font-semibold tracking-tight text-ink">{{ result.comments.length.toLocaleString() }}</span>
+            <span class="text-sm text-muted">{{ t('pop.ready', { unit }) }}</span>
           </div>
           <div class="grid grid-cols-4 gap-2">
             <button v-for="f in formats" :key="f.id" class="export-chip" @click="exportAs(f.id)">
@@ -73,7 +73,7 @@
             <button v-if="savedId" class="flex items-center gap-1.5 text-commentgrab-violet transition hover:underline" @click="openDashboard(`/saved/${savedId}`)">
               <ExternalLink class="h-3 w-3" /> {{ t('common.openInDashboard') }}
             </button>
-            <button class="flex items-center gap-1.5 text-ink-400 transition hover:text-ink-700" @click="scrape()">
+            <button class="flex items-center gap-1.5 text-muted transition hover:text-ink" @click="scrape()">
               <RefreshCw class="h-3 w-3" /> {{ t('common.rescrape') }}
             </button>
           </div>
@@ -81,7 +81,7 @@
 
         <!-- error -->
         <template v-else-if="status === 'error'">
-          <div class="mt-4 flex items-start gap-2 rounded-xl bg-rose-50 px-3 py-2.5 text-sm text-rose-700">
+          <div class="mt-4 flex items-start gap-2 rounded-lg bg-[#fdeaea] px-3 py-2.5 text-sm text-[#c23a3a] dark:bg-[#c23a3a]/20 dark:text-[#f08a8a]">
             <AlertCircle class="mt-0.5 h-4 w-4 shrink-0" />
             <span>{{ error }}</span>
           </div>
@@ -94,14 +94,14 @@
         <div class="flex items-start gap-3">
           <PlatformGlyph platform="reddit" :size="40" />
           <div class="min-w-0 flex-1">
-            <div class="text-[11px] font-semibold uppercase tracking-wide text-ink-400">{{ t('pop.batchDetected') }}</div>
-            <div class="line-clamp-2 text-sm font-medium leading-snug text-ink-900">{{ listLabel }}</div>
+            <div class="text-[11px] font-medium uppercase tracking-[0.06em] text-faint">{{ t('pop.batchDetected') }}</div>
+            <div class="line-clamp-2 text-sm font-medium leading-snug text-ink">{{ listLabel }}</div>
           </div>
         </div>
 
         <!-- idle -->
         <template v-if="status === 'idle'">
-          <div class="mt-3 flex items-center justify-between rounded-xl bg-commentgrab-soft px-3 py-2">
+          <div class="mt-3 flex items-center justify-between rounded-lg bg-commentgrab-soft px-3 py-2">
             <label for="topN" class="text-xs font-semibold text-commentgrab-violet">{{ t('pop.topPosts') }}</label>
             <input
               id="topN"
@@ -109,10 +109,10 @@
               type="number"
               min="1"
               max="25"
-              class="w-16 rounded-lg border border-black/10 bg-white px-2 py-1 text-center text-sm font-semibold text-ink-900 outline-none focus:border-commentgrab-violet"
+              class="w-16 rounded-lg border border-line-strong bg-surface px-2 py-1 text-center text-sm font-semibold text-ink outline-none focus:border-brand-400"
             />
           </div>
-          <label class="mt-2.5 flex cursor-pointer items-center gap-2 text-xs font-medium text-ink-500">
+          <label class="mt-2.5 flex cursor-pointer items-center gap-2 text-xs font-medium text-muted">
             <input v-model="skipExisting" type="checkbox" class="h-3.5 w-3.5 accent-commentgrab-violet" />
             {{ t('pop.skipExisting') }}
           </label>
@@ -121,7 +121,7 @@
 
         <!-- scraping -->
         <template v-else-if="status === 'scraping'">
-          <div class="mt-4 flex items-center gap-2 text-sm font-medium text-ink-700">
+          <div class="mt-4 flex items-center gap-2 text-sm font-medium text-ink-soft">
             <Loader2 class="h-4 w-4 animate-spin-slow text-commentgrab-violet" />
             <span class="truncate">{{ progress.message || t('pop.working') }}</span>
           </div>
@@ -133,7 +133,7 @@
 
         <!-- error -->
         <template v-else-if="status === 'error'">
-          <div class="mt-4 flex items-start gap-2 rounded-xl bg-rose-50 px-3 py-2.5 text-sm text-rose-700">
+          <div class="mt-4 flex items-start gap-2 rounded-lg bg-[#fdeaea] px-3 py-2.5 text-sm text-[#c23a3a] dark:bg-[#c23a3a]/20 dark:text-[#f08a8a]">
             <AlertCircle class="mt-0.5 h-4 w-4 shrink-0" />
             <span>{{ error }}</span>
           </div>
@@ -149,39 +149,39 @@
           :description="t('pop.noCommentsBody')"
         />
         <div class="mt-3 grid grid-cols-2 gap-2">
-          <div v-for="p in supported" :key="p.id" class="flex items-center gap-2 rounded-xl border border-black/5 bg-white px-3 py-2">
+          <div v-for="p in supported" :key="p.id" class="flex items-center gap-2 rounded-lg border border-line bg-surface px-3 py-2">
             <PlatformGlyph :platform="p.id" :size="26" />
-            <span class="text-xs font-medium text-ink-700">{{ p.label }}</span>
+            <span class="text-xs font-medium text-ink-soft">{{ p.label }}</span>
           </div>
         </div>
       </div>
     </main>
 
     <!-- footer: mini stats -->
-    <footer class="mt-auto grid grid-cols-3 gap-px border-t border-black/5 bg-black/5 text-center">
-      <div class="bg-white px-3 py-3">
-        <div class="text-lg font-bold text-ink-900">{{ formatNumber(stats.totalComments) }}</div>
-        <div class="text-[10px] font-medium uppercase tracking-wide text-ink-400">{{ t('pop.statComments') }}</div>
+    <footer class="mt-auto grid grid-cols-3 gap-px border-t border-line bg-line text-center">
+      <div class="bg-surface px-3 py-3">
+        <div class="text-lg font-semibold text-ink">{{ formatNumber(stats.totalComments) }}</div>
+        <div class="text-[10px] font-medium uppercase tracking-[0.06em] text-faint">{{ t('pop.statComments') }}</div>
       </div>
-      <div class="bg-white px-3 py-3">
-        <div class="text-lg font-bold text-ink-900">{{ formatNumber(stats.totalScrapes) }}</div>
-        <div class="text-[10px] font-medium uppercase tracking-wide text-ink-400">{{ t('pop.statScrapes') }}</div>
+      <div class="bg-surface px-3 py-3">
+        <div class="text-lg font-semibold text-ink">{{ formatNumber(stats.totalScrapes) }}</div>
+        <div class="text-[10px] font-medium uppercase tracking-[0.06em] text-faint">{{ t('pop.statScrapes') }}</div>
       </div>
-      <button class="bg-white px-3 py-3 transition hover:bg-slate-50" @click="openDashboard('/saved')">
-        <div class="text-lg font-bold commentgrab-text">{{ formatNumber(savedCount) }}</div>
-        <div class="text-[10px] font-medium uppercase tracking-wide text-ink-400">{{ t('pop.statSaved') }}</div>
+      <button class="bg-surface px-3 py-3 transition hover:bg-canvas-2" @click="openDashboard('/saved')">
+        <div class="text-lg font-semibold text-commentgrab-violet">{{ formatNumber(savedCount) }}</div>
+        <div class="text-[10px] font-medium uppercase tracking-[0.06em] text-faint">{{ t('pop.statSaved') }}</div>
       </button>
     </footer>
 
     <!-- board picker overlay -->
     <div
       v-if="boardPickerOpen"
-      class="absolute inset-0 z-30 flex items-center justify-center bg-ink-900/25 p-5"
+      class="absolute inset-0 z-30 flex items-center justify-center bg-ink/20 p-5"
       @click.self="boardPickerOpen = false"
     >
       <div class="w-full max-w-[300px]">
         <BoardPicker ref="picker" v-model="pickedBoards" />
-        <button class="mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl bg-ink-900 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-ink-700" @click="confirmSave()">
+        <button class="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg bg-brand-500 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-600" @click="confirmSave()">
           <WandSparkles v-if="pickerMode === 'analyze'" class="h-4 w-4" />
           {{ pickerMode === 'analyze' ? t('common.saveAndAnalyze') : savedId ? t('common.updateBoards') : t('common.save') }}
         </button>
@@ -481,24 +481,20 @@ function openDashboard(path = ''): void {
   flex-direction: column;
   align-items: center;
   gap: 5px;
-  border-radius: 0.85rem;
-  border: 1px solid rgba(11, 16, 32, 0.08);
-  background: #fff;
+  border-radius: 10px;
+  border: 1px solid rgb(var(--cg-line-strong));
+  background: rgb(var(--cg-surface));
   padding: 0.6rem 0;
   font-size: 11px;
   font-weight: 600;
-  color: #1e2435;
+  color: rgb(var(--cg-ink-soft));
   outline: none;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 .export-chip:hover {
-  border-color: rgba(124, 58, 237, 0.45);
-  color: #7c3aed;
-  background: rgba(124, 58, 237, 0.05);
-  transform: translateY(-1px);
-}
-.export-chip:active {
-  transform: translateY(0);
+  border-color: #8f7bf3;
+  color: rgb(var(--cg-brand-fg));
+  background: rgb(var(--cg-brand-soft));
 }
 
 .action-btn {
@@ -506,30 +502,35 @@ function openDashboard(path = ''): void {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  border-radius: 0.85rem;
-  border: 1px solid rgba(11, 16, 32, 0.08);
-  background: #fff;
+  border-radius: 10px;
+  border: 1px solid rgb(var(--cg-line-strong));
+  background: rgb(var(--cg-surface));
   padding: 0.55rem 0;
   font-size: 13px;
   font-weight: 600;
-  color: #1e2435;
+  color: rgb(var(--cg-ink-soft));
   outline: none;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 .action-btn:hover {
-  background: #f8fafc;
-  border-color: rgba(11, 16, 32, 0.14);
+  background: rgb(var(--cg-canvas-2));
 }
 .action-btn:active {
-  transform: scale(0.985);
+  transform: translateY(1px);
 }
 .action-btn--saved {
-  border-color: rgba(16, 185, 129, 0.35);
-  background: rgba(16, 185, 129, 0.1);
-  color: #047857;
+  border-color: rgba(31, 122, 69, 0.25);
+  background: #e7f5ec;
+  color: #1f7a45;
 }
 .action-btn--saved:hover {
-  background: rgba(16, 185, 129, 0.16);
-  border-color: rgba(16, 185, 129, 0.45);
+  background: #dcefe3;
+}
+@media (prefers-color-scheme: dark) {
+  .action-btn--saved,
+  .action-btn--saved:hover {
+    background: rgba(31, 122, 69, 0.2);
+    color: #6fcf97;
+  }
 }
 </style>

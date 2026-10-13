@@ -1,16 +1,16 @@
 <template>
-  <div v-if="show" class="relative rounded-2xl border border-[#da552f]/25 bg-[#fff5f1] p-3.5">
-    <button class="absolute right-2 top-2 text-ink-300 transition hover:text-ink-600" :title="t('common.dismiss')" @click="dismiss">
+  <div v-if="show" class="relative rounded-xl border border-[#da552f]/25 bg-[#fff5f1] dark:bg-[#da552f]/10 p-3.5">
+    <button class="absolute right-2 top-2 text-faint transition hover:text-muted" :title="t('common.dismiss')" @click="dismiss">
       <X class="h-3.5 w-3.5" />
     </button>
-    <div class="flex items-center gap-2 text-sm font-semibold text-ink-900">
+    <div class="flex items-center gap-2 text-sm font-semibold text-ink">
       <svg viewBox="0 0 40 40" class="h-6 w-6 shrink-0" aria-hidden="true">
         <rect width="40" height="40" rx="10" fill="#da552f" />
         <path d="M22 12h-7v16h3.2v-4.6H22a5.7 5.7 0 0 0 0-11.4zm0 8.2h-3.8v-4.9H22a2.45 2.45 0 0 1 0 4.9z" fill="#fff" />
       </svg>
       Live on Product Hunt
     </div>
-    <p class="mt-2 text-xs leading-relaxed text-ink-500">If CommentGrab saved you time, an upvote means a lot.</p>
+    <p class="mt-2 text-xs leading-relaxed text-muted">If CommentGrab saved you time, an upvote means a lot.</p>
     <a
       :href="url"
       target="_blank"

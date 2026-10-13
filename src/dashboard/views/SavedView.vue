@@ -2,22 +2,22 @@
   <div class="animate-fade-up">
     <!-- ===================== DETAIL ===================== -->
     <template v-if="id">
-      <button class="mb-4 flex items-center gap-1.5 text-sm font-medium text-ink-500 transition hover:text-ink-900" @click="navigate('/saved')">
+      <button class="mb-4 flex items-center gap-1.5 text-sm font-medium text-muted transition hover:text-ink" @click="navigate('/saved')">
         <ArrowLeft class="h-4 w-4" /> {{ t('common.allCollections') }}
       </button>
 
       <div v-if="collection">
         <div class="flex items-start gap-4">
-          <img v-if="faviconUrl(collection.url)" :src="faviconUrl(collection.url, 128)" alt="" class="h-12 w-12 shrink-0 rounded-xl border border-black/[0.06] bg-white p-2" />
+          <img v-if="faviconUrl(collection.url)" :src="faviconUrl(collection.url, 128)" alt="" class="h-12 w-12 shrink-0 rounded-xl border border-line bg-surface p-2" />
           <PlatformGlyph v-else :platform="collection.platform" :size="48" />
           <div class="min-w-0 flex-1">
-            <h1 class="text-xl font-bold leading-tight tracking-tight text-ink-900">{{ collection.title }}</h1>
-            <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-500">
+            <h1 class="text-[20px] font-semibold leading-tight tracking-tight text-ink">{{ collection.title }}</h1>
+            <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
               <span>{{ platformLabel(collection.platform) }}</span>
               <span v-if="collection.source">· {{ collection.source }}</span>
               <span>· {{ collection.commentCount.toLocaleString() }} {{ t('common.comments') }}</span>
               <span>· {{ t('sv.savedPrefix') }} {{ relativeTime(collection.createdAt) }}</span>
-              <a v-if="collection.url" :href="collection.url" target="_blank" rel="noopener" class="inline-flex items-center gap-1 font-medium text-commentgrab-violet hover:underline">
+              <a v-if="collection.url" :href="collection.url" target="_blank" rel="noopener" class="inline-flex items-center gap-1 font-medium text-brand-600 hover:underline">
                 {{ t('sv.original') }} <ExternalLink class="h-3.5 w-3.5" />
               </a>
             </div>
@@ -48,7 +48,7 @@
           <div class="mb-2 flex items-center justify-between gap-3">
             <label for="note" class="label !mb-0">{{ t('sv.note') }}</label>
             <SpButton v-if="noteDirty" size="sm" :icon="Check" @click="saveNote()">{{ t('sv.saveNote') }}</SpButton>
-            <span v-else-if="note" class="text-xs font-medium text-ink-300">Saved</span>
+            <span v-else-if="note" class="text-xs font-medium text-faint">Saved</span>
           </div>
           <textarea
             id="note"
@@ -71,24 +71,24 @@
     <template v-else>
       <header class="mb-6 flex items-end justify-between">
         <div>
-          <h1 class="text-2xl font-bold tracking-tight text-ink-900">{{ t('sv.title') }}</h1>
-          <p class="mt-1 text-sm text-ink-500">{{ t('sv.subtitle') }}</p>
+          <h1 class="text-[22px] font-semibold tracking-tight text-ink">{{ t('sv.title') }}</h1>
+          <p class="mt-1 text-[13.5px] text-muted">{{ t('sv.subtitle') }}</p>
         </div>
       </header>
 
       <div v-if="collections.length" class="mb-5 flex flex-wrap items-center gap-2">
         <div class="relative min-w-[220px] flex-1 max-w-sm">
-          <Search class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-300" />
+          <Search class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-faint" />
           <input v-model="query" type="text" :placeholder="t('sv.search')" class="input !py-2 !pl-9" />
         </div>
         <div class="flex flex-wrap gap-1.5">
           <button
             v-for="f in platformFilters"
             :key="f.id"
-            class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition"
+            class="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition"
             :class="platformFilter === f.id
-              ? 'border-commentgrab-fuchsia/30 bg-commentgrab-soft text-commentgrab-violet'
-              : 'border-black/[0.08] bg-white text-ink-500 hover:border-black/[0.16] hover:text-ink-900'"
+              ? 'border-brand-200 bg-brand-50 text-brand-600'
+              : 'border-line bg-surface text-muted hover:border-line-strong hover:text-ink'"
             @click="platformFilter = f.id"
           >
             <PlatformGlyph v-if="f.id !== 'all'" :platform="(f.id as PlatformId)" :size="15" />
@@ -98,14 +98,14 @@
       </div>
 
       <div v-if="collections.length && boardFilters.length > 1" class="mb-5 flex flex-wrap items-center gap-1.5">
-        <span class="mr-1 text-[11px] font-semibold uppercase tracking-wide text-ink-300">{{ t('common.boards') }}</span>
+        <span class="mr-1 col-label !mb-0">{{ t('common.boards') }}</span>
         <button
           v-for="b in boardFilters"
           :key="b.id"
-          class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition"
+          class="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition"
           :class="boardFilter === b.id
-            ? 'border-commentgrab-fuchsia/30 bg-commentgrab-soft text-commentgrab-violet'
-            : 'border-black/[0.08] bg-white text-ink-500 hover:border-black/[0.16] hover:text-ink-900'"
+            ? 'border-brand-200 bg-brand-50 text-brand-600'
+            : 'border-line bg-surface text-muted hover:border-line-strong hover:text-ink'"
           @click="boardFilter = b.id"
         >{{ b.label }}</button>
       </div>
@@ -114,31 +114,31 @@
         <button
           v-for="c in visibleCollections"
           :key="c.id"
-          class="group relative flex flex-col rounded-2xl border border-black/[0.07] bg-white p-4 text-left transition hover:border-black/[0.16] hover:shadow-sm"
+          class="group relative flex flex-col rounded-xl border border-line bg-surface p-4 text-left transition hover:border-line-strong"
           @click="navigate(`/saved/${c.id}`)"
         >
           <div class="flex items-start gap-3">
-            <img v-if="faviconUrl(c.url)" :src="faviconUrl(c.url, 64)" alt="" class="h-10 w-10 shrink-0 rounded-xl border border-black/[0.06] bg-white p-1.5" />
+            <img v-if="faviconUrl(c.url)" :src="faviconUrl(c.url, 64)" alt="" class="h-10 w-10 shrink-0 rounded-xl border border-line bg-surface p-1.5" />
             <PlatformGlyph v-else :platform="c.platform" :size="40" />
             <div class="min-w-0 flex-1">
-              <div class="line-clamp-2 text-sm font-semibold leading-snug text-ink-900">{{ c.title }}</div>
-              <div class="mt-0.5 truncate text-xs text-ink-400">{{ c.source || platformLabel(c.platform) }}</div>
+              <div class="line-clamp-2 text-sm font-semibold leading-snug text-ink">{{ c.title }}</div>
+              <div class="mt-0.5 truncate text-xs text-faint">{{ c.source || platformLabel(c.platform) }}</div>
               <div v-if="c.boardIds?.length" class="mt-1.5 flex flex-wrap gap-1">
-                <span v-for="bid in c.boardIds.slice(0, 2)" :key="bid" class="rounded-md bg-commentgrab-soft px-1.5 py-0.5 text-[10px] font-semibold text-commentgrab-violet">{{ boardName(bid) }}</span>
-                <span v-if="c.boardIds.length > 2" class="text-[10px] font-semibold text-ink-400">+{{ c.boardIds.length - 2 }}</span>
+                <span v-for="bid in c.boardIds.slice(0, 2)" :key="bid" class="rounded-md bg-brand-50 px-1.5 py-0.5 text-[10px] font-semibold text-brand-600">{{ boardName(bid) }}</span>
+                <span v-if="c.boardIds.length > 2" class="text-[10px] font-semibold text-faint">+{{ c.boardIds.length - 2 }}</span>
               </div>
             </div>
             <Star v-if="c.pinned" class="h-4 w-4 shrink-0 fill-commentgrab-amber text-commentgrab-amber" />
           </div>
-          <div class="mt-4 flex items-center justify-between border-t border-black/[0.05] pt-3 text-xs">
-            <span class="font-semibold text-ink-700">{{ c.commentCount.toLocaleString() }} {{ t('common.comments') }}</span>
-            <span class="flex items-center gap-2 text-ink-400">
-              <span v-if="c.analysis" class="flex items-center gap-1 text-commentgrab-violet" :title="t('an.analyzedLabel')"><Sparkles class="h-3 w-3" /></span>
+          <div class="mt-4 flex items-center justify-between border-t border-line pt-3 text-xs">
+            <span class="font-semibold text-ink-soft">{{ c.commentCount.toLocaleString() }} {{ t('common.comments') }}</span>
+            <span class="flex items-center gap-2 text-faint">
+              <span v-if="c.analysis" class="flex items-center gap-1 text-brand-600" :title="t('an.analyzedLabel')"><Sparkles class="h-3 w-3" /></span>
               {{ relativeTime(c.updatedAt) }}
             </span>
           </div>
           <span
-            class="absolute right-2.5 top-2.5 hidden rounded-lg p-1.5 text-ink-300 transition hover:bg-rose-50 hover:text-rose-600 group-hover:block"
+            class="absolute right-2.5 top-2.5 hidden rounded-lg p-1.5 text-faint transition hover:bg-[#fdeaea] hover:text-[#c23a3a] group-hover:block"
             :title="t('common.delete')"
             @click.stop="remove(c.id)"
           ><Trash2 class="h-3.5 w-3.5" /></span>

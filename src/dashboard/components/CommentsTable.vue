@@ -1,17 +1,17 @@
 <template>
   <div>
     <!-- empty / missing comments -->
-    <div v-if="!hasComments" class="flex flex-col items-center justify-center rounded-xl border border-dashed border-black/10 px-6 py-10 text-center">
-      <MessageSquareOff class="mb-2 h-6 w-6 text-ink-300" />
-      <p class="text-sm font-medium text-ink-700">{{ t('ct.empty') }}</p>
-      <p class="mt-1 max-w-sm text-xs text-ink-400">{{ t('ct.emptyBody') }}</p>
+    <div v-if="!hasComments" class="flex flex-col items-center justify-center rounded-xl border border-dashed border-line px-6 py-10 text-center">
+      <MessageSquareOff class="mb-2 h-6 w-6 text-faint" />
+      <p class="text-sm font-medium text-ink-soft">{{ t('ct.empty') }}</p>
+      <p class="mt-1 max-w-sm text-xs text-faint">{{ t('ct.emptyBody') }}</p>
     </div>
 
     <template v-else>
     <!-- toolbar -->
     <div class="mb-3 flex flex-wrap items-center gap-2">
       <div class="relative min-w-[200px] flex-1">
-        <Search class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-300" />
+        <Search class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-faint" />
         <input v-model="query" type="text" :placeholder="t('ct.search')" class="input !py-2 !pl-9" />
       </div>
       <select v-model="sort" class="input !w-auto !py-2">
@@ -23,14 +23,14 @@
       </select>
       <button
         class="chip border transition"
-        :class="topOnly ? 'border-commentgrab-fuchsia/40 bg-commentgrab-soft text-ink-900' : 'border-black/[0.08] bg-white text-ink-500 hover:text-ink-700'"
+        :class="topOnly ? 'border-brand-200 bg-brand-50 text-brand-600' : 'border-line bg-surface text-muted hover:text-ink-soft'"
         @click="topOnly = !topOnly"
       >
         <ListTree class="h-3.5 w-3.5" /> {{ t('ct.topOnly') }}
       </button>
     </div>
 
-    <div class="mb-2 px-1 text-xs text-ink-400">
+    <div class="mb-2 px-1 text-xs text-faint">
       {{ t('ct.showing', { a: Math.min(limit, filtered.length).toLocaleString(), b: filtered.length.toLocaleString() }) }}
     </div>
 
@@ -39,28 +39,28 @@
       <article
         v-for="(c, i) in visible"
         :key="`${c.commentId || 'c'}-${i}`"
-        class="rounded-xl border border-black/[0.06] bg-white p-3.5 transition hover:border-black/[0.12]"
+        class="rounded-xl border border-line bg-surface p-3.5 transition hover:border-line-strong"
         :style="{ marginLeft: `${Math.min(c.depth, 5) * 16}px` }"
       >
         <div class="mb-1.5 flex items-center gap-2 text-xs">
-          <span class="font-semibold text-ink-900">{{ c.author || 'anonymous' }}</span>
-          <span v-if="c.score !== 'Hidden'" class="chip bg-commentgrab-soft text-ink-700">
+          <span class="font-semibold text-ink">{{ c.author || 'anonymous' }}</span>
+          <span v-if="c.score !== 'Hidden'" class="chip bg-brand-50 text-brand-600">
             <ArrowBigUp class="h-3.5 w-3.5" /> {{ Number(c.score).toLocaleString() }}
           </span>
-          <span v-if="c.timestamp" class="text-ink-300">{{ prettyTime(c.timestamp) }}</span>
-          <span v-if="c.depth > 0" class="text-ink-300">· reply</span>
+          <span v-if="c.timestamp" class="text-faint">{{ prettyTime(c.timestamp) }}</span>
+          <span v-if="c.depth > 0" class="text-faint">· reply</span>
           <a
             v-if="c.permalink"
             :href="c.permalink"
             target="_blank"
             rel="noopener"
-            class="ml-auto text-ink-300 transition hover:text-commentgrab-violet"
+            class="ml-auto text-faint transition hover:text-brand-600"
             :title="t('common.openComment')"
           >
             <ExternalLink class="h-3.5 w-3.5" />
           </a>
         </div>
-        <p class="whitespace-pre-wrap text-sm leading-relaxed text-ink-700">{{ c.text }}</p>
+        <p class="whitespace-pre-wrap text-sm leading-relaxed text-ink-soft">{{ c.text }}</p>
         <div v-if="c.links.length" class="mt-2 flex flex-wrap gap-1.5">
           <a
             v-for="(l, i) in c.links"
@@ -68,7 +68,7 @@
             :href="l"
             target="_blank"
             rel="noopener"
-            class="chip max-w-[220px] truncate bg-slate-100 text-ink-500 hover:text-commentgrab-violet"
+            class="chip max-w-[220px] truncate bg-canvas-2 text-muted hover:text-brand-600"
           >
             <LinkIcon class="h-3 w-3 shrink-0" /> <span class="truncate">{{ prettyLink(l) }}</span>
           </a>

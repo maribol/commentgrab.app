@@ -1,12 +1,6 @@
 <template>
   <svg :viewBox="`0 0 ${W} ${H}`" preserveAspectRatio="none" class="block h-full w-full overflow-visible">
-    <defs>
-      <linearGradient :id="`spark-${uid}`" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" :stop-color="color" stop-opacity="0.22" />
-        <stop offset="100%" :stop-color="color" stop-opacity="0" />
-      </linearGradient>
-    </defs>
-    <path v-if="area" :d="area" :fill="`url(#spark-${uid})`" />
+    <path v-if="area" :d="area" :fill="color" fill-opacity="0.08" />
     <path
       v-if="line"
       :d="line"
@@ -21,10 +15,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, useId } from 'vue';
+import { computed } from 'vue';
 
-const props = withDefaults(defineProps<{ points: number[]; color?: string }>(), { color: '#7c3aed' });
-const uid = useId();
+const props = withDefaults(defineProps<{ points: number[]; color?: string }>(), { color: '#6d5ef6' });
 const W = 100;
 const H = 36;
 

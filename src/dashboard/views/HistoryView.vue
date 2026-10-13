@@ -2,8 +2,8 @@
   <div class="animate-fade-up">
     <header class="mb-6 flex items-end justify-between">
       <div>
-        <h1 class="text-2xl font-bold tracking-tight text-ink-900">{{ t('hi.title') }}</h1>
-        <p class="mt-1 text-sm text-ink-500">{{ t('hi.subtitle') }}</p>
+        <h1 class="text-[22px] font-semibold tracking-tight text-ink">{{ t('hi.title') }}</h1>
+        <p class="mt-1 text-[13.5px] text-muted">{{ t('hi.subtitle') }}</p>
       </div>
       <button
         v-if="entries.length"
@@ -15,19 +15,19 @@
     </header>
 
     <SpCard v-if="entries.length" class="!p-2">
-      <div class="divide-y divide-black/[0.05]">
+      <div class="divide-y divide-line">
         <div
           v-for="h in entries"
           :key="h.id"
-          class="group flex items-center gap-3 rounded-xl px-2.5 py-3 transition"
-          :class="h.savedCollectionId ? 'cursor-pointer hover:bg-black/[0.03]' : ''"
+          class="group flex items-center gap-3 rounded-lg px-2.5 py-3 transition"
+          :class="h.savedCollectionId ? 'cursor-pointer hover:bg-canvas-2' : ''"
           @click="h.savedCollectionId && navigate(`/saved/${h.savedCollectionId}`)"
         >
-          <img v-if="faviconUrl(h.url)" :src="faviconUrl(h.url, 64)" alt="" class="h-[34px] w-[34px] shrink-0 rounded-xl border border-black/[0.06] bg-white p-1.5" />
+          <img v-if="faviconUrl(h.url)" :src="faviconUrl(h.url, 64)" alt="" class="h-[34px] w-[34px] shrink-0 rounded-xl border border-line bg-surface p-1.5" />
           <PlatformGlyph v-else :platform="h.platform" :size="34" />
           <div class="min-w-0 flex-1">
-            <div class="truncate text-sm font-medium text-ink-900">{{ h.title || h.source || t('hi.scrape') }}</div>
-            <div class="flex items-center gap-2 text-xs text-ink-400">
+            <div class="truncate text-sm font-medium text-ink">{{ h.title || h.source || t('hi.scrape') }}</div>
+            <div class="flex items-center gap-2 text-xs text-faint">
               <span>{{ h.commentCount.toLocaleString() }} {{ t('common.comments') }}</span>
               <span>· {{ formatDateTime(h.scrapedAt) }}</span>
             </div>
@@ -35,11 +35,11 @@
           <div class="flex shrink-0 items-center gap-1.5">
             <span
               v-if="h.savedCollectionId"
-              class="chip bg-commentgrab-soft text-commentgrab-violet"
+              class="chip bg-brand-50 text-brand-600"
             >
               <Eye class="h-3.5 w-3.5" /> {{ t('hi.viewComments') }}
             </span>
-            <span v-else class="chip bg-black/[0.04] text-ink-400">{{ t('hi.notSaved') }}</span>
+            <span v-else class="chip bg-canvas-2 text-faint">{{ t('hi.notSaved') }}</span>
             <a
               v-if="h.url"
               :href="h.url"

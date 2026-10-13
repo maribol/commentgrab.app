@@ -11,10 +11,10 @@
         <!-- tooltip — only on real hover, never sticky -->
         <div
           v-if="hover === i && maxValue > 0"
-          class="pointer-events-none absolute -top-1 z-10 -translate-y-full whitespace-nowrap rounded-xl border border-black/[0.07] bg-white px-3.5 py-2.5 text-left"
+          class="pointer-events-none absolute -top-1 z-10 -translate-y-full whitespace-nowrap rounded-lg border border-line bg-surface px-3.5 py-2.5 text-left"
         >
-          <div class="text-[11px] font-medium text-ink-400">Monthly {{ metric }}</div>
-          <div class="text-lg font-bold tracking-tight text-ink-900">{{ valueOf(pt).toLocaleString() }}</div>
+          <div class="text-[11px] font-medium text-faint">Monthly {{ metric }}</div>
+          <div class="text-lg font-semibold tracking-tight text-ink">{{ valueOf(pt).toLocaleString() }}</div>
           <div v-if="deltaOf(i) !== null" class="mt-0.5 flex items-center gap-1 text-[11px] font-semibold" :class="deltaOf(i)! >= 0 ? 'text-emerald-600' : 'text-rose-500'">
             <component :is="deltaOf(i)! >= 0 ? ArrowUp : ArrowDown" class="h-3 w-3" />
             {{ Math.abs(deltaOf(i)!) }}% vs last month
@@ -24,12 +24,12 @@
         <!-- bar -->
         <div class="relative w-full max-w-[60px]" :style="{ height: heightOf(pt) }">
           <div
-            class="h-full w-full rounded-xl transition-colors duration-200"
-            :class="activeIndex === i ? 'bg-commentgrab-violet' : 'dotted'"
+            class="h-full w-full rounded-lg transition-colors duration-200"
+            :class="activeIndex === i ? 'bg-brand-500' : 'dotted'"
           />
         </div>
 
-        <span class="mt-3 text-[11px] font-semibold tracking-wide" :class="activeIndex === i ? 'text-ink-900' : 'text-ink-300'">
+        <span class="mt-3 text-[11px] font-semibold tracking-wide" :class="activeIndex === i ? 'text-ink' : 'text-faint'">
           {{ pt.label }}
         </span>
       </div>
@@ -86,8 +86,6 @@ function deltaOf(i: number): number | null {
 
 <style scoped>
 .dotted {
-  background-color: #f1f2f7;
-  background-image: radial-gradient(circle, rgba(11, 16, 32, 0.12) 1.4px, transparent 1.4px);
-  background-size: 9px 9px;
+  background-color: rgb(var(--cg-brand-soft));
 }
 </style>

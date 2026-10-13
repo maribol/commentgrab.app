@@ -1,34 +1,34 @@
 <template>
   <div class="animate-fade-up">
     <header class="mb-6">
-      <h1 class="text-2xl font-bold tracking-tight text-ink-900">{{ t('ov.title') }}</h1>
-      <p class="mt-1 text-sm text-ink-500">{{ t('ov.subtitle') }}</p>
+      <h1 class="text-[22px] font-semibold tracking-tight text-ink">{{ t('ov.title') }}</h1>
+      <p class="mt-1 text-[13.5px] text-muted">{{ t('ov.subtitle') }}</p>
     </header>
 
     <!-- Empty state -->
     <div v-if="stats.totalScrapes === 0" class="space-y-5">
       <SpCard class="px-8 py-10 text-center">
-        <BrandMark :size="64" class="mx-auto shadow-glow" />
-        <h2 class="mt-5 text-2xl font-bold tracking-tight text-ink-900">{{ t('ov.firstThread') }}</h2>
-        <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-ink-500">
+        <BrandMark :size="64" class="mx-auto" />
+        <h2 class="mt-5 text-2xl font-bold tracking-tight text-ink">{{ t('ov.firstThread') }}</h2>
+        <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted">
           {{ t('ov.emptyBody') }}
         </p>
         <div class="mx-auto mt-7 grid max-w-lg grid-cols-2 gap-2.5 sm:grid-cols-4">
-          <div v-for="p in supported" :key="p.id" class="flex flex-col items-center gap-2 rounded-2xl border border-black/[0.06] bg-white px-3 py-4 transition hover:border-black/[0.12]">
+          <div v-for="p in supported" :key="p.id" class="flex flex-col items-center gap-2 rounded-xl border border-line bg-surface px-3 py-4 transition hover:border-line-strong">
             <PlatformGlyph :platform="p.id" :size="34" />
-            <span class="text-xs font-semibold text-ink-700">{{ p.label }}</span>
+            <span class="text-xs font-semibold text-ink-soft">{{ p.label }}</span>
           </div>
         </div>
       </SpCard>
 
       <!-- how it works -->
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div v-for="(step, i) in steps" :key="step.title" class="rounded-2xl border border-black/[0.06] bg-white p-4">
-          <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-commentgrab-soft text-commentgrab-violet">
+        <div v-for="(step, i) in steps" :key="step.title" class="rounded-xl border border-line bg-surface p-4">
+          <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
             <component :is="step.icon" class="h-[18px] w-[18px]" />
           </span>
-          <div class="mt-3 text-sm font-bold text-ink-900">{{ i + 1 }} · {{ step.title }}</div>
-          <p class="mt-1 text-xs leading-relaxed text-ink-500">{{ step.body }}</p>
+          <div class="mt-3 text-sm font-semibold text-ink">{{ i + 1 }} · {{ step.title }}</div>
+          <p class="mt-1 text-xs leading-relaxed text-muted">{{ step.body }}</p>
         </div>
       </div>
     </div>
@@ -36,23 +36,23 @@
     <template v-else>
       <!-- Hero -->
       <SpCard class="mb-5 px-7 py-6">
-        <div class="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-400">{{ t('ov.allTime') }}</div>
-        <div class="mt-1.5 text-5xl font-bold tracking-tight commentgrab-text">{{ stats.totalComments.toLocaleString() }}</div>
-        <div class="mt-2.5 text-sm text-ink-500">
+        <div class="col-label">{{ t('ov.allTime') }}</div>
+        <div class="mt-1.5 text-5xl font-semibold tracking-tight text-ink">{{ stats.totalComments.toLocaleString() }}</div>
+        <div class="mt-2.5 text-sm text-muted">
           {{ t('ov.across', { scrapes: stats.totalScrapes.toLocaleString(), saved: savedCount, exports: stats.totalExports.toLocaleString() }) }}<template v-if="analyzed.length"> {{ t('ov.analyzedSuffix', { n: analyzed.length }) }}</template>
         </div>
       </SpCard>
 
       <!-- Metric cards with sparklines -->
       <div class="mb-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <div v-for="card in metricCards" :key="card.label" class="rounded-2xl border border-black/[0.07] bg-white p-4">
+        <div v-for="card in metricCards" :key="card.label" class="rounded-xl border border-line bg-surface p-4">
           <div class="flex items-center justify-between">
-            <span class="text-[11px] font-semibold uppercase tracking-wide text-ink-400">{{ card.label }}</span>
-            <component :is="card.icon" class="h-4 w-4 text-ink-300" />
+            <span class="col-label !mb-0">{{ card.label }}</span>
+            <component :is="card.icon" class="h-4 w-4 text-faint" />
           </div>
           <div class="mt-2 flex items-end justify-between gap-2">
             <div>
-              <div class="text-2xl font-bold tracking-tight text-ink-900">{{ card.value }}</div>
+              <div class="text-2xl font-bold tracking-tight text-ink">{{ card.value }}</div>
               <div
                 v-if="card.delta"
                 class="mt-1 inline-flex items-center gap-0.5 text-xs font-semibold"
@@ -60,7 +60,7 @@
               >
                 <component :is="card.delta.dir === 'up' ? ArrowUp : ArrowDown" class="h-3 w-3" />{{ card.delta.pct }}%
               </div>
-              <div v-else class="mt-1 text-xs text-ink-300">vs last month</div>
+              <div v-else class="mt-1 text-xs text-faint">vs last month</div>
             </div>
             <div class="h-9 w-24 shrink-0"><SpSparkline :points="card.series" :color="card.color" /></div>
           </div>
@@ -70,31 +70,31 @@
       <!-- Aggregated AI insights -->
       <SpCard v-if="aiAgg" class="mb-5">
         <div class="mb-4 flex items-center justify-between">
-          <h2 class="flex items-center gap-2 text-base font-bold tracking-tight text-ink-900"><Sparkles class="h-4 w-4 text-commentgrab-violet" /> {{ t('ov.aiInsights') }}</h2>
-          <span class="text-xs font-medium text-ink-400">{{ t('ov.aiAcross', { n: aiAgg.count, label: aiAgg.label.toLowerCase() }) }}</span>
+          <h2 class="flex items-center gap-2 text-[15px] font-semibold tracking-tight text-ink"><Sparkles class="h-4 w-4 text-brand-600" /> {{ t('ov.aiInsights') }}</h2>
+          <span class="text-xs font-medium text-faint">{{ t('ov.aiAcross', { n: aiAgg.count, label: aiAgg.label.toLowerCase() }) }}</span>
         </div>
         <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
           <div>
-            <div class="mb-2.5 text-[11px] font-semibold uppercase tracking-wide text-ink-400">{{ t('ov.topTopics') }}</div>
+            <div class="mb-2.5 col-label">{{ t('ov.topTopics') }}</div>
             <div v-if="aiAgg.themes.length" class="space-y-2.5">
               <div v-for="topic in aiAgg.themes" :key="topic.theme">
                 <div class="mb-1 flex items-center justify-between text-sm">
-                  <span class="truncate pr-2 font-medium text-ink-700">{{ topic.theme }}</span>
-                  <span class="shrink-0 text-ink-400">{{ topic.mentions }}</span>
+                  <span class="truncate pr-2 font-medium text-ink-soft">{{ topic.theme }}</span>
+                  <span class="shrink-0 text-faint">{{ topic.mentions }}</span>
                 </div>
-                <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-                  <div class="h-full rounded-full bg-commentgrab-violet" :style="{ width: `${Math.max(6, Math.round((topic.mentions / aiAgg.maxMentions) * 100))}%` }" />
+                <div class="h-1.5 w-full overflow-hidden rounded-full bg-canvas-2">
+                  <div class="h-full rounded-full bg-brand-500" :style="{ width: `${Math.max(6, Math.round((topic.mentions / aiAgg.maxMentions) * 100))}%` }" />
                 </div>
               </div>
             </div>
-            <p v-else class="text-sm text-ink-400">{{ t('ov.noTopics') }}</p>
+            <p v-else class="text-sm text-faint">{{ t('ov.noTopics') }}</p>
           </div>
           <div>
-            <div class="mb-2.5 text-[11px] font-semibold uppercase tracking-wide text-ink-400">{{ t('ov.customerLanguage') }}</div>
+            <div class="mb-2.5 col-label">{{ t('ov.customerLanguage') }}</div>
             <div v-if="aiAgg.language.length" class="flex flex-wrap gap-1.5">
-              <span v-for="(p, i) in aiAgg.language" :key="i" class="chip bg-slate-100 text-ink-700">"{{ p }}"</span>
+              <span v-for="(p, i) in aiAgg.language" :key="i" class="chip bg-canvas-2 text-ink-soft">"{{ p }}"</span>
             </div>
-            <p v-else class="text-sm text-ink-400">{{ t('ov.noPhrases') }}</p>
+            <p v-else class="text-sm text-faint">{{ t('ov.noPhrases') }}</p>
           </div>
         </div>
       </SpCard>
@@ -102,28 +102,28 @@
       <!-- Recent collections -->
       <SpCard v-if="recentCollections.length" class="mb-5">
         <div class="mb-4 flex items-center justify-between">
-          <h2 class="text-base font-bold tracking-tight text-ink-900">{{ t('ov.recentCollections') }}</h2>
-          <button class="text-xs font-semibold text-commentgrab-violet hover:underline" @click="navigate('/saved')">{{ t('common.viewAll') }}</button>
+          <h2 class="text-[15px] font-semibold tracking-tight text-ink">{{ t('ov.recentCollections') }}</h2>
+          <button class="text-xs font-semibold text-brand-600 hover:underline" @click="navigate('/saved')">{{ t('common.viewAll') }}</button>
         </div>
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <button
             v-for="c in recentCollections"
             :key="c.id"
-            class="group flex flex-col rounded-2xl border border-black/[0.07] bg-white p-4 text-left transition hover:border-black/[0.16] hover:shadow-sm"
+            class="group flex flex-col rounded-xl border border-line bg-surface p-4 text-left transition hover:border-line-strong"
             @click="navigate(`/saved/${c.id}`)"
           >
             <div class="flex items-start gap-2.5">
               <img v-if="faviconUrl(c.url)" :src="faviconUrl(c.url)" alt="" class="mt-0.5 h-5 w-5 shrink-0 rounded" />
               <PlatformGlyph v-else :platform="c.platform" :size="20" />
               <div class="min-w-0 flex-1">
-                <div class="line-clamp-2 text-sm font-semibold leading-snug text-ink-900">{{ c.title }}</div>
-                <div class="mt-0.5 truncate text-xs text-ink-400">{{ c.source || platformLabel(c.platform) }}</div>
+                <div class="line-clamp-2 text-sm font-semibold leading-snug text-ink">{{ c.title }}</div>
+                <div class="mt-0.5 truncate text-xs text-faint">{{ c.source || platformLabel(c.platform) }}</div>
               </div>
             </div>
-            <div class="mt-3 flex items-center justify-between border-t border-black/[0.05] pt-2.5 text-xs">
-              <span class="font-semibold text-ink-700">{{ c.commentCount.toLocaleString() }}</span>
-              <span class="flex items-center gap-1.5 text-ink-400">
-                <span v-if="c.analysis" class="flex items-center gap-1 text-commentgrab-violet"><Sparkles class="h-3 w-3" /> {{ t('ov.analyzed') }}</span>
+            <div class="mt-3 flex items-center justify-between border-t border-line pt-2.5 text-xs">
+              <span class="font-semibold text-ink-soft">{{ c.commentCount.toLocaleString() }}</span>
+              <span class="flex items-center gap-1.5 text-faint">
+                <span v-if="c.analysis" class="flex items-center gap-1 text-brand-600"><Sparkles class="h-3 w-3" /> {{ t('ov.analyzed') }}</span>
                 {{ relativeTime(c.updatedAt) }}
               </span>
             </div>
@@ -135,15 +135,15 @@
       <SpCard class="mb-5">
         <div class="mb-5 flex items-start justify-between">
           <div>
-            <h2 class="text-base font-bold tracking-tight text-ink-900">{{ t('ov.activity') }}</h2>
-            <p class="mt-0.5 text-sm text-ink-500">Your busiest months over the last half-year.</p>
+            <h2 class="text-[15px] font-semibold tracking-tight text-ink">{{ t('ov.activity') }}</h2>
+            <p class="mt-0.5 text-sm text-muted">Your busiest months over the last half-year.</p>
           </div>
-          <div class="flex rounded-xl bg-slate-100 p-1 text-xs font-semibold">
+          <div class="flex rounded-lg border border-line bg-canvas-2 p-0.5 text-xs font-semibold">
             <button
               v-for="m in (['comments','scrapes'] as const)"
               :key="m"
-              class="rounded-lg px-3 py-1.5 capitalize transition"
-              :class="metric === m ? 'bg-white text-ink-900 shadow-sm' : 'text-ink-400 hover:text-ink-700'"
+              class="rounded-md px-3 py-1.5 capitalize transition"
+              :class="metric === m ? 'bg-surface text-ink ring-1 ring-line' : 'text-muted hover:text-ink'"
               @click="metric = m"
             >{{ m }}</button>
           </div>
@@ -154,47 +154,47 @@
       <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <!-- Platform breakdown -->
         <SpCard>
-          <h2 class="mb-4 text-base font-bold tracking-tight text-ink-900">{{ t('ov.byPlatform') }}</h2>
+          <h2 class="mb-4 text-[15px] font-semibold tracking-tight text-ink">{{ t('ov.byPlatform') }}</h2>
           <div v-if="breakdown.length" class="space-y-3.5">
             <div v-for="row in breakdown" :key="row.platform">
               <div class="mb-1.5 flex items-center justify-between">
-                <span class="flex items-center gap-2 text-sm font-medium text-ink-700">
+                <span class="flex items-center gap-2 text-sm font-medium text-ink-soft">
                   <PlatformGlyph :platform="row.platform" :size="22" />
                   {{ platformLabel(row.platform) }}
                 </span>
-                <span class="text-sm font-semibold text-ink-900">{{ row.count.toLocaleString() }}</span>
+                <span class="text-sm font-semibold text-ink">{{ row.count.toLocaleString() }}</span>
               </div>
-              <div class="h-2 w-full overflow-hidden rounded-full bg-slate-100">
-                <div class="h-full rounded-full bg-commentgrab-violet" :style="{ width: `${row.pct}%` }" />
+              <div class="h-2 w-full overflow-hidden rounded-full bg-canvas-2">
+                <div class="h-full rounded-full bg-brand-500" :style="{ width: `${row.pct}%` }" />
               </div>
             </div>
           </div>
-          <p v-else class="text-sm text-ink-400">No platform data yet.</p>
+          <p v-else class="text-sm text-faint">No platform data yet.</p>
         </SpCard>
 
         <!-- Recent activity -->
         <SpCard>
           <div class="mb-4 flex items-center justify-between">
-            <h2 class="text-base font-bold tracking-tight text-ink-900">{{ t('ov.recentActivity') }}</h2>
-            <button class="text-xs font-semibold text-commentgrab-violet hover:underline" @click="navigate('/history')">{{ t('common.viewAll') }}</button>
+            <h2 class="text-[15px] font-semibold tracking-tight text-ink">{{ t('ov.recentActivity') }}</h2>
+            <button class="text-xs font-semibold text-brand-600 hover:underline" @click="navigate('/history')">{{ t('common.viewAll') }}</button>
           </div>
           <div v-if="recent.length" class="space-y-1">
             <button
               v-for="h in recent"
               :key="h.id"
-              class="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition hover:bg-black/[0.03]"
+              class="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition hover:bg-canvas-2"
               @click="openHistory(h)"
             >
               <img v-if="faviconUrl(h.url)" :src="faviconUrl(h.url)" alt="" class="h-[26px] w-[26px] shrink-0 rounded-lg" />
               <PlatformGlyph v-else :platform="h.platform" :size="30" />
               <div class="min-w-0 flex-1">
-                <div class="truncate text-sm font-medium text-ink-900">{{ h.title || h.source || 'Scrape' }}</div>
-                <div class="text-xs text-ink-400">{{ h.commentCount.toLocaleString() }} · {{ relativeTime(h.scrapedAt) }}</div>
+                <div class="truncate text-sm font-medium text-ink">{{ h.title || h.source || 'Scrape' }}</div>
+                <div class="text-xs text-faint">{{ h.commentCount.toLocaleString() }} · {{ relativeTime(h.scrapedAt) }}</div>
               </div>
-              <ChevronRight class="h-4 w-4 shrink-0 text-ink-300" />
+              <ChevronRight class="h-4 w-4 shrink-0 text-faint" />
             </button>
           </div>
-          <p v-else class="text-sm text-ink-400">Nothing yet.</p>
+          <p v-else class="text-sm text-faint">Nothing yet.</p>
         </SpCard>
       </div>
     </template>
@@ -269,10 +269,10 @@ const metricCards = computed(() => {
   const exportsSeries = m.map((x) => x.exports);
   const saved = savedSeries.value;
   return [
-    { label: 'Comments', icon: MessagesSquare, value: formatNumber(stats.value.totalComments), color: '#7c3aed', series: comments, delta: deltaOf(comments) },
-    { label: 'Scrapes', icon: Layers, value: formatNumber(stats.value.totalScrapes), color: '#a855f7', series: scrapes, delta: deltaOf(scrapes) },
-    { label: 'Exports', icon: Download, value: formatNumber(stats.value.totalExports), color: '#d946ef', series: exportsSeries, delta: deltaOf(exportsSeries) },
-    { label: 'Saved', icon: Bookmark, value: formatNumber(savedCount.value), color: '#ec4899', series: saved, delta: deltaOf(saved) },
+    { label: 'Comments', icon: MessagesSquare, value: formatNumber(stats.value.totalComments), color: '#6d5ef6', series: comments, delta: deltaOf(comments) },
+    { label: 'Scrapes', icon: Layers, value: formatNumber(stats.value.totalScrapes), color: '#6d5ef6', series: scrapes, delta: deltaOf(scrapes) },
+    { label: 'Exports', icon: Download, value: formatNumber(stats.value.totalExports), color: '#6d5ef6', series: exportsSeries, delta: deltaOf(exportsSeries) },
+    { label: 'Saved', icon: Bookmark, value: formatNumber(savedCount.value), color: '#6d5ef6', series: saved, delta: deltaOf(saved) },
   ];
 });
 

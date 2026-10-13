@@ -1,14 +1,14 @@
 <template>
-  <div class="relative h-[8px] w-full overflow-hidden rounded-full bg-slate-100">
+  <div class="relative h-[6px] w-full overflow-hidden rounded-full bg-canvas-2">
     <!-- indeterminate: a pill that slides across -->
     <div
       v-if="indeterminate"
-      class="absolute inset-y-0 left-0 w-1/3 rounded-full bg-commentgrab animate-indeterminate"
+      class="absolute inset-y-0 left-0 w-1/3 rounded-full bg-brand-500 animate-indeterminate"
     />
     <!-- determinate: width tracks value -->
     <div
       v-else
-      class="h-full rounded-full bg-commentgrab transition-[width] duration-500 ease-out"
+      class="h-full rounded-full bg-brand-500 transition-[width] duration-500 ease-out"
       :style="{ width: `${clamped}%` }"
     />
   </div>

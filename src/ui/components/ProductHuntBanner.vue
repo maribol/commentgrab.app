@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="show"
-    class="flex items-center gap-3 border-b border-black/[0.06] bg-gradient-to-r from-[#fff3ee] to-[#fdf1f7]"
+    class="flex items-center gap-3 border-b border-line bg-[#fff5f1] dark:bg-[#da552f]/10"
     :class="compact ? 'px-[14px] py-[9px] text-[12px]' : 'px-8 py-3 text-sm'"
   >
     <!-- Product Hunt mark -->
@@ -10,7 +10,7 @@
       <path d="M22 12h-7v16h3.2v-4.6H22a5.7 5.7 0 0 0 0-11.4zm0 8.2h-3.8v-4.9H22a2.45 2.45 0 0 1 0 4.9z" fill="#fff" />
     </svg>
 
-    <span class="min-w-0 truncate font-medium text-ink-700">CommentGrab is live on Product Hunt</span>
+    <span class="min-w-0 truncate font-medium text-ink-soft">CommentGrab is live on Product Hunt</span>
 
     <a
       :href="url"
@@ -23,7 +23,7 @@
       {{ compact ? 'View' : 'See us on Product Hunt' }}
     </a>
 
-    <button class="shrink-0 text-ink-400 transition hover:text-ink-700" :title="t('common.dismiss')" @click="dismiss">
+    <button class="shrink-0 text-faint transition hover:text-ink-soft" :title="t('common.dismiss')" @click="dismiss">
       <X :class="compact ? 'h-3.5 w-3.5' : 'h-4 w-4'" />
     </button>
   </div>

@@ -1,5 +1,5 @@
 <template>
-  <div :class="['commentgrab-card', padded ? 'p-5' : '', hover ? 'transition hover:shadow-soft' : '']">
+  <div :class="['commentgrab-card', padded ? 'p-5' : '', hover ? 'transition-colors hover:border-line-strong' : '']">
     <slot />
   </div>
 </template>

@@ -2,16 +2,16 @@
   <Teleport to="body">
     <Transition name="modal">
       <div v-if="open" class="fixed inset-0 z-[70] flex items-center justify-center p-4 sm:p-6" @keydown.esc="emit('close')">
-        <div class="absolute inset-0 bg-ink-900/40 backdrop-blur-sm" @click="emit('close')" />
+        <div class="absolute inset-0 bg-ink/30" @click="emit('close')" />
         <div
-          class="relative flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl bg-white shadow-soft"
+          class="relative flex max-h-[90vh] w-full flex-col overflow-hidden rounded-xl border border-line bg-surface"
           :class="widthClass"
         >
-          <header v-if="$slots.header || title" class="flex items-center justify-between gap-4 border-b border-black/5 px-6 py-4">
+          <header v-if="$slots.header || title" class="flex items-center justify-between gap-4 border-b border-line px-6 py-4">
             <div class="min-w-0">
               <slot name="header">
-                <h2 class="truncate text-base font-semibold text-ink-900">{{ title }}</h2>
-                <p v-if="subtitle" class="truncate text-sm text-ink-400">{{ subtitle }}</p>
+                <h2 class="truncate text-base font-semibold text-ink">{{ title }}</h2>
+                <p v-if="subtitle" class="truncate text-[13.5px] text-muted">{{ subtitle }}</p>
               </slot>
             </div>
             <button class="btn-ghost -mr-2 h-8 w-8 rounded-lg p-0" @click="emit('close')">
@@ -21,7 +21,7 @@
           <div class="scroll-thin min-h-0 flex-1 overflow-y-auto">
             <slot />
           </div>
-          <footer v-if="$slots.footer" class="border-t border-black/5 px-6 py-4">
+          <footer v-if="$slots.footer" class="border-t border-line px-6 py-4">
             <slot name="footer" />
           </footer>
         </div>

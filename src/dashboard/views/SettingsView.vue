@@ -1,17 +1,17 @@
 <template>
   <div class="animate-fade-up">
     <header class="mb-6">
-      <h1 class="text-2xl font-bold tracking-tight text-ink-900">{{ t('set.title') }}</h1>
-      <p class="mt-1 text-sm text-ink-500">{{ t('set.subtitle') }}</p>
+      <h1 class="text-[22px] font-semibold tracking-tight text-ink">{{ t('set.title') }}</h1>
+      <p class="mt-1 text-[13.5px] text-muted">{{ t('set.subtitle') }}</p>
     </header>
 
     <div class="space-y-5">
       <!-- OpenAI -->
       <SpCard>
-        <h2 class="flex items-center gap-2 text-base font-bold text-ink-900"><KeyRound class="h-4.5 w-4.5 text-commentgrab-violet" /> {{ t('set.openai') }}</h2>
-        <p class="mt-1 text-sm text-ink-500">
+        <h2 class="flex items-center gap-2 text-[15px] font-semibold text-ink"><KeyRound class="h-4.5 w-4.5 text-brand-600" /> {{ t('set.openai') }}</h2>
+        <p class="mt-1 text-[13.5px] text-muted">
           {{ t('set.openaiDesc') }}
-          <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener" class="font-medium text-commentgrab-violet hover:underline">platform.openai.com</a>.
+          <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener" class="font-medium text-brand-600 hover:underline">platform.openai.com</a>.
         </p>
 
         <label class="label mt-4">{{ t('set.apiKey') }}</label>
@@ -25,7 +25,7 @@
               spellcheck="false"
               class="input !pr-10 font-mono"
             />
-            <button class="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-300 hover:text-ink-700" @click="showKey = !showKey">
+            <button class="absolute right-2.5 top-1/2 -translate-y-1/2 text-faint hover:text-ink-soft" @click="showKey = !showKey">
               <component :is="showKey ? EyeOff : Eye" class="h-4 w-4" />
             </button>
           </div>
@@ -46,25 +46,25 @@
           <option v-for="l in LOCALES" :key="l.id" :value="l.id">{{ l.label }}</option>
         </select>
 
-        <label class="label mt-4">{{ t('set.customInstr') }} <span class="font-normal normal-case text-ink-400">({{ t('common.optional') }})</span></label>
+        <label class="label mt-4">{{ t('set.customInstr') }} <span class="font-normal normal-case text-faint">({{ t('common.optional') }})</span></label>
         <textarea
           v-model="form.analysisInstructions"
           rows="3"
           :placeholder="t('set.customInstrPlaceholder')"
           class="input resize-none"
         />
-        <p class="mt-1.5 text-xs text-ink-400">{{ t('set.customInstrExample') }}</p>
+        <p class="mt-1.5 text-xs text-faint">{{ t('set.customInstrExample') }}</p>
       </SpCard>
 
       <!-- Export defaults -->
       <SpCard>
-        <h2 class="flex items-center gap-2 text-base font-bold text-ink-900"><SlidersHorizontal class="h-4.5 w-4.5 text-commentgrab-violet" /> {{ t('set.exportDefaults') }}</h2>
-        <p class="mt-1 text-sm text-ink-500">{{ t('set.exportDefaultsSub') }}</p>
-        <div class="mt-4 divide-y divide-black/[0.05]">
+        <h2 class="flex items-center gap-2 text-[15px] font-semibold text-ink"><SlidersHorizontal class="h-4.5 w-4.5 text-brand-600" /> {{ t('set.exportDefaults') }}</h2>
+        <p class="mt-1 text-[13.5px] text-muted">{{ t('set.exportDefaultsSub') }}</p>
+        <div class="mt-4 divide-y divide-line">
           <div v-for="tg in exportToggles" :key="tg.key" class="flex items-center justify-between py-3">
             <div class="pr-4">
-              <div class="text-sm font-medium text-ink-900">{{ tg.label }}</div>
-              <div class="text-xs text-ink-400">{{ tg.desc }}</div>
+              <div class="text-sm font-medium text-ink">{{ tg.label }}</div>
+              <div class="text-xs text-faint">{{ tg.desc }}</div>
             </div>
             <SpToggle :model-value="form.export[tg.key]" @update:model-value="form.export[tg.key] = $event" />
           </div>
@@ -73,34 +73,34 @@
 
       <!-- Widget -->
       <SpCard>
-        <h2 class="flex items-center gap-2 text-base font-bold text-ink-900"><LayoutPanelLeft class="h-4.5 w-4.5 text-commentgrab-violet" /> {{ t('set.widget') }}</h2>
-        <div class="mt-4 divide-y divide-black/[0.05]">
+        <h2 class="flex items-center gap-2 text-[15px] font-semibold text-ink"><LayoutPanelLeft class="h-4.5 w-4.5 text-brand-600" /> {{ t('set.widget') }}</h2>
+        <div class="mt-4 divide-y divide-line">
           <div class="flex items-center justify-between py-3">
             <div class="pr-4">
-              <div class="text-sm font-medium text-ink-900">{{ t('set.widgetShow') }}</div>
-              <div class="text-xs text-ink-400">{{ t('set.widgetShowDesc') }}</div>
+              <div class="text-sm font-medium text-ink">{{ t('set.widgetShow') }}</div>
+              <div class="text-xs text-faint">{{ t('set.widgetShowDesc') }}</div>
             </div>
             <SpToggle v-model="form.widgetEnabled" />
           </div>
           <div class="flex items-center justify-between py-3">
             <div class="pr-4">
-              <div class="text-sm font-medium text-ink-900">{{ t('set.widgetPos') }}</div>
-              <div class="text-xs text-ink-400">{{ t('set.widgetPosDesc') }}</div>
+              <div class="text-sm font-medium text-ink">{{ t('set.widgetPos') }}</div>
+              <div class="text-xs text-faint">{{ t('set.widgetPosDesc') }}</div>
             </div>
-            <div class="flex rounded-xl bg-slate-100 p-1 text-xs font-semibold">
+            <div class="flex rounded-lg border border-line bg-canvas-2 p-0.5 text-xs font-semibold">
               <button
                 v-for="pos in (['bottom-left','bottom-right'] as const)"
                 :key="pos"
-                class="rounded-lg px-3 py-1.5 transition"
-                :class="form.widgetPosition === pos ? 'bg-white text-ink-900 shadow-sm' : 'text-ink-400 hover:text-ink-700'"
+                class="rounded-md px-3 py-1.5 transition"
+                :class="form.widgetPosition === pos ? 'bg-surface text-ink ring-1 ring-line' : 'text-muted hover:text-ink'"
                 @click="form.widgetPosition = pos"
               >{{ pos === 'bottom-left' ? t('set.bottomLeft') : t('set.bottomRight') }}</button>
             </div>
           </div>
           <div class="flex items-center justify-between py-3">
             <div class="pr-4">
-              <div class="text-sm font-medium text-ink-900">{{ t('set.autoSave') }}</div>
-              <div class="text-xs text-ink-400">{{ t('set.autoSaveDesc') }}</div>
+              <div class="text-sm font-medium text-ink">{{ t('set.autoSave') }}</div>
+              <div class="text-xs text-faint">{{ t('set.autoSaveDesc') }}</div>
             </div>
             <SpToggle v-model="form.autoSave" />
           </div>
@@ -109,15 +109,15 @@
 
       <!-- Data -->
       <SpCard>
-        <h2 class="flex items-center gap-2 text-base font-bold text-ink-900"><Database class="h-4.5 w-4.5 text-commentgrab-violet" /> {{ t('set.yourData') }}</h2>
-        <p class="mt-1 text-sm text-ink-500">{{ t('set.dataSub') }}</p>
+        <h2 class="flex items-center gap-2 text-[15px] font-semibold text-ink"><Database class="h-4.5 w-4.5 text-brand-600" /> {{ t('set.yourData') }}</h2>
+        <p class="mt-1 text-[13.5px] text-muted">{{ t('set.dataSub') }}</p>
         <div class="mt-4">
-          <div class="mb-1.5 flex items-center justify-between text-xs font-medium text-ink-500">
+          <div class="mb-1.5 flex items-center justify-between text-xs font-medium text-muted">
             <span>{{ formatBytes(usage.bytes) }} {{ t('set.used') }}</span>
             <span>{{ formatBytes(usage.quota) }} {{ t('set.available') }}</span>
           </div>
-          <div class="h-2 w-full overflow-hidden rounded-full bg-slate-100">
-            <div class="h-full rounded-full bg-commentgrab" :style="{ width: `${usagePct}%` }" />
+          <div class="h-2 w-full overflow-hidden rounded-full bg-canvas-2">
+            <div class="h-full rounded-full bg-brand-500" :style="{ width: `${usagePct}%` }" />
           </div>
         </div>
         <SpButton variant="secondary" class="mt-4 hover:!text-rose-600" :icon="Trash2" @click="confirmClear = true">{{ t('set.clearAll') }}</SpButton>
@@ -126,20 +126,20 @@
       <!-- About -->
       <SpCard class="p-6">
         <div class="flex items-center gap-2.5">
-          <BrandMark :size="36" class="shadow-glow" />
+          <BrandMark :size="36" />
           <div>
-            <div class="text-base font-bold"><span class="commentgrab-text">CommentGrab</span> <span class="text-ink-400">v1.0.0</span></div>
-            <div class="text-xs text-ink-500">Free, source-available comment exporter · PolyForm Shield</div>
+            <div class="text-[15px] font-bold tracking-tight text-ink">CommentGrab <span class="font-medium text-faint">v1.0.0</span></div>
+            <div class="text-xs text-muted">Free, source-available comment exporter · PolyForm Shield</div>
           </div>
         </div>
-        <p class="mt-3 max-w-lg text-sm text-ink-500">
+        <p class="mt-3 max-w-lg text-sm text-muted">
           Pull comments and reviews from Reddit, YouTube, Hacker News and Steam. Export to CSV, JSON or Markdown, and surface hooks, objections and customer language with OpenAI — all locally.
         </p>
       </SpCard>
     </div>
 
     <SpModal :open="confirmClear" :title="t('set.clearTitle')" :subtitle="t('set.clearSubtitle')" size="md" @close="confirmClear = false">
-      <div class="px-6 py-5 text-sm text-ink-600">
+      <div class="px-6 py-5 text-sm text-muted">
         {{ t('set.clearBody') }}
       </div>
       <template #footer>

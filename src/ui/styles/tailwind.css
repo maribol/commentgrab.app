@@ -2,79 +2,131 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ----------------------------------------------------------------------------
+   CommentGrab design system, matched to the gtm-sites admin: light, hairline
+   borders (1px), no drop shadows, one solid violet brand (#6D5EF6). Neutrals are
+   RGB triplets so Tailwind opacity modifiers work; dark mode repoints them.
+   :host covers the content-script widget's shadow root.
+---------------------------------------------------------------------------- */
 @layer base {
   :host,
   :root {
-    --commentgrab-grad: linear-gradient(95deg, #7c3aed 0%, #d946ef 55%, #ec4899 100%);
+    --cg-ink: 23 23 28;          /* #17171c */
+    --cg-ink-soft: 58 58 68;     /* #3a3a44 */
+    --cg-muted: 113 113 122;     /* #71717a */
+    --cg-faint: 161 161 170;     /* #a1a1aa */
+    --cg-line: 236 236 239;      /* #ececef */
+    --cg-line-strong: 224 224 228; /* #e0e0e4 */
+    --cg-surface: 255 255 255;
+    --cg-canvas: 250 250 250;    /* #fafafa */
+    --cg-canvas-2: 244 244 246;  /* #f4f4f6 */
+    --cg-shell: 233 232 229;     /* #e9e8e5 */
+    --cg-brand-fg: 90 69 232;    /* brand-600, legible as text */
+    --cg-brand-soft: 241 240 254; /* brand-50 */
   }
 
+  @media (prefers-color-scheme: dark) {
+    :host,
+    :root:not([data-theme='light']) {
+      --cg-ink: 242 242 245;
+      --cg-ink-soft: 201 201 210;
+      --cg-muted: 154 154 166;
+      --cg-faint: 108 108 120;
+      --cg-line: 38 38 44;
+      --cg-line-strong: 52 52 60;
+      --cg-surface: 25 25 32;
+      --cg-canvas: 19 19 23;
+      --cg-canvas-2: 31 31 38;
+      --cg-shell: 13 13 16;
+      --cg-brand-fg: 165 150 251;
+      --cg-brand-soft: 39 34 72;
+    }
+  }
+
+  * {
+    border-color: rgb(var(--cg-line));
+  }
   html {
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+  }
+  body {
+    background: rgb(var(--cg-canvas));
+    color: rgb(var(--cg-ink));
+    font-feature-settings: 'cv11', 'ss01';
+  }
+  ::selection {
+    background: #d0cafb;
+  }
+  h1, h2, h3, h4 {
+    letter-spacing: -0.02em;
   }
 }
 
 @layer components {
   .commentgrab-bg {
-    background-color: #f6f7fb;
+    @apply bg-canvas;
   }
 
-  .commentgrab-card {
-    @apply rounded-2xl border border-black/[0.07] bg-white;
+  .commentgrab-card,
+  .card {
+    @apply rounded-xl border border-line bg-surface;
   }
 
+  /* Was gradient text; now plain brand violet. */
   .commentgrab-text {
-    background-image: var(--commentgrab-grad);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
+    color: rgb(var(--cg-brand-fg));
   }
 
   .commentgrab-ring {
-    box-shadow: 0 0 0 1px rgba(217, 70, 239, 0.35), 0 8px 30px -8px rgba(217, 70, 239, 0.45);
+    box-shadow: 0 0 0 1px #8f7bf3;
   }
 
-  /* Buttons */
+  /* Buttons — gtm-sites shapes. Primary is the brand violet, not near-black. */
   .btn {
-    @apply inline-flex select-none items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold outline-none transition active:scale-[0.98] focus-visible:ring-4 focus-visible:ring-commentgrab-violet/20 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-transparent px-4 py-2.5 text-sm font-semibold leading-none outline-none transition-colors duration-150 active:translate-y-px focus-visible:ring-4 focus-visible:ring-brand-500/20 disabled:cursor-not-allowed disabled:opacity-50;
   }
-  .btn-primary {
-    @apply btn bg-ink-900 text-white hover:bg-ink-700;
+  .btn-primary,
+  .btn-brand {
+    @apply btn bg-brand-500 text-white hover:bg-brand-600;
   }
   .btn-secondary {
-    @apply btn border border-black/[0.08] bg-white text-ink-700 hover:bg-slate-50;
+    @apply btn border-line-strong bg-surface text-ink hover:bg-canvas-2;
+  }
+  .btn-soft {
+    @apply btn bg-canvas-2 text-ink-soft hover:bg-line;
   }
   .btn-ghost {
-    @apply btn text-ink-500 hover:bg-black/[0.04] hover:text-ink-700;
+    @apply btn text-muted hover:bg-canvas-2 hover:text-ink;
   }
   .btn-sm {
-    @apply rounded-lg px-3 py-1.5 text-xs;
+    @apply rounded-md px-3 py-1.5 text-[13px];
   }
 
   .chip {
-    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
+    @apply inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-semibold;
   }
 
   .input {
-    @apply w-full rounded-xl border border-black/[0.10] bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-300 outline-none transition focus:border-commentgrab-fuchsia/60 focus:ring-4 focus:ring-fuchsia-500/10;
+    @apply w-full rounded-lg border border-line-strong bg-surface px-3.5 py-2.5 text-sm text-ink placeholder:text-faint outline-none transition-colors focus:border-brand-400;
   }
 
-  .label {
-    @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-ink-400;
+  .label,
+  .col-label {
+    @apply mb-1.5 block text-[11px] font-medium uppercase tracking-[0.06em] text-faint;
   }
 
   .scroll-thin {
     scrollbar-width: thin;
-    scrollbar-color: rgba(11, 16, 32, 0.18) transparent;
+    scrollbar-color: rgb(var(--cg-line-strong)) transparent;
   }
   .scroll-thin::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
   .scroll-thin::-webkit-scrollbar-thumb {
-    background-color: rgba(11, 16, 32, 0.16);
-    border-radius: 999px;
+    background-color: rgb(var(--cg-line-strong));
+    border-radius: 8px;
   }
   .scroll-thin::-webkit-scrollbar-track {
     background: transparent;

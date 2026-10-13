@@ -1,34 +1,34 @@
 <template>
-  <div class="rounded-xl border border-black/[0.08] bg-white p-2.5 shadow-lg">
-    <div class="mb-1.5 px-1 text-[11px] font-semibold uppercase tracking-wide text-ink-400">{{ t('common.boards') }}</div>
+  <div class="rounded-xl border border-line bg-surface p-2.5">
+    <div class="col-label px-1">{{ t('common.boards') }}</div>
     <div v-if="boards.length" class="scroll-thin max-h-40 space-y-0.5 overflow-y-auto">
       <button
         v-for="b in boards"
         :key="b.id"
-        class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm transition hover:bg-black/[0.03]"
+        class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm transition hover:bg-canvas-2"
         @click="toggle(b.id)"
       >
         <span
           class="flex h-4 w-4 shrink-0 items-center justify-center rounded border"
-          :class="selected.includes(b.id) ? 'border-commentgrab-violet bg-commentgrab-violet text-white' : 'border-black/20'"
+          :class="selected.includes(b.id) ? 'border-brand-500 bg-brand-500 text-white' : 'border-line-strong'"
         >
           <Check v-if="selected.includes(b.id)" class="h-3 w-3" />
         </span>
-        <span class="truncate text-ink-800">{{ b.name }}</span>
+        <span class="truncate text-ink-soft">{{ b.name }}</span>
       </button>
     </div>
-    <p v-else class="px-1 pb-1 text-xs text-ink-400">{{ t('common.noBoards') }}</p>
+    <p v-else class="px-1 pb-1 text-xs text-faint">{{ t('common.noBoards') }}</p>
 
-    <div class="mt-1.5 flex items-center gap-1.5 border-t border-black/[0.06] pt-1.5">
+    <div class="mt-1.5 flex items-center gap-1.5 border-t border-line pt-1.5">
       <input
         v-model="newName"
         type="text"
         :placeholder="t('common.newBoard')"
-        class="min-w-0 flex-1 rounded-lg border border-black/10 px-2 py-1.5 text-sm outline-none transition focus:border-commentgrab-fuchsia/60"
+        class="min-w-0 flex-1 rounded-lg border border-line-strong bg-surface px-2 py-1.5 text-sm text-ink outline-none transition placeholder:text-faint focus:border-brand-400"
         @keydown.enter.prevent="create"
       />
       <button
-        class="rounded-lg bg-ink-900 px-2.5 py-1.5 text-xs font-semibold text-white transition hover:bg-ink-700 disabled:opacity-40"
+        class="rounded-lg bg-brand-500 px-2.5 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-600 disabled:opacity-40"
         :disabled="!newName.trim()"
         @click="create"
       >
