@@ -27,7 +27,6 @@
           </div>
         </div>
 
-        <ProductHuntBanner compact />
 
         <!-- detected -->
         <div class="flex items-start gap-[12px] px-[16px] pb-[12px] pt-[14px]">
@@ -223,7 +222,6 @@ import { recordExport } from '@/shared/stats';
 import SpProgress from '@/ui/components/SpProgress.vue';
 import PlatformGlyph from '@/ui/components/PlatformGlyph.vue';
 import BrandMark from '@/ui/components/BrandMark.vue';
-import ProductHuntBanner from '@/ui/components/ProductHuntBanner.vue';
 import BoardPicker from '@/ui/components/BoardPicker.vue';
 import { widgetState } from '../state';
 import { scrapeLocal } from '../scrape-local';

@@ -60,7 +60,6 @@
         </nav>
 
         <div v-if="!collapsed" class="space-y-3 pt-3">
-          <ProductHuntCard />
 
           <div class="rounded-xl border border-line bg-canvas p-3.5">
             <div class="flex items-center gap-2 text-[13.5px] font-semibold text-ink">
@@ -159,7 +158,6 @@ import { t } from '@/shared/i18n';
 import { navigate, useRoute } from './router';
 import BrandMark from '@/ui/components/BrandMark.vue';
 import Onboarding from './Onboarding.vue';
-import ProductHuntCard from '@/ui/components/ProductHuntCard.vue';
 import CommandPalette from './components/CommandPalette.vue';
 import { listCollections } from '@/shared/storage';
 import SpToaster from '@/ui/components/SpToaster.vue';

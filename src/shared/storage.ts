@@ -314,19 +314,6 @@ export async function takeAutoAnalyze(): Promise<string> {
   return id;
 }
 
-/* ------------------------------- Promo -------------------------------- */
-
-const PROMO_KEY = 'commentgrab:promoDismissed';
-
-/** The extension version a promo (e.g. Product Hunt banner) was last dismissed at. */
-export async function getPromoDismissed(): Promise<string> {
-  return getRaw<string>(PROMO_KEY, '');
-}
-
-export async function setPromoDismissed(version: string): Promise<void> {
-  await setRaw(PROMO_KEY, version);
-}
-
 /** Subscribe to local storage changes; returns an unsubscribe fn. */
 export function onStorageChanged(cb: (keys: string[]) => void): () => void {
   const handler = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
