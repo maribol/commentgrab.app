@@ -72,7 +72,6 @@ export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export const SUPPORT_EMAIL = 'sam@elasticfunnels.io';
 
 /** The bug-report form on the website. Context travels in the URL fragment so it never reaches server logs. */
 export const REPORT_PROBLEM_URL = 'https://commentgrab.app/report';

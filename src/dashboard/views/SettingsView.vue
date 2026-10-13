@@ -115,6 +115,13 @@
             </div>
             <SpToggle v-model="form.autoSave" />
           </div>
+          <div class="flex items-center justify-between border-t border-line py-3">
+            <div class="pr-4">
+              <div class="text-[13.5px] font-medium text-ink">{{ t('set.changelogOnUpdate') }}</div>
+              <div class="text-xs text-faint">{{ t('set.changelogOnUpdateDesc') }}</div>
+            </div>
+            <SpToggle v-model="form.openChangelogOnUpdate" />
+          </div>
         </div>
       </SpCard>
 
@@ -272,6 +279,7 @@ watch(
       analysisInstructions: form.analysisInstructions,
       language: form.language,
       confirmAnalysis: form.confirmAnalysis,
+      openChangelogOnUpdate: form.openChangelogOnUpdate,
     });
   },
   { deep: true },

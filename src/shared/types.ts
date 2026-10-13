@@ -255,6 +255,8 @@ export interface AppSettings {
   language: string;
   /** Ask before each OpenAI call: always, only when the estimate is $0.01 or more, or never. */
   confirmAnalysis: ConfirmMode;
+  /** Open the changelog in a new tab after Chrome updates CommentGrab to a new minor or major version. */
+  openChangelogOnUpdate: boolean;
 }
 
 export type ConfirmMode = 'always' | 'above' | 'never';
@@ -269,6 +271,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   analysisInstructions: '',
   language: 'en',
   confirmAnalysis: 'always',
+  openChangelogOnUpdate: true,
 };
 
 /* ----------------------------- Analysis ---------------------------- */

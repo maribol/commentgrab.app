@@ -1,5 +1,6 @@
 import type { PlatformId, ScrapeResult } from '@/shared/types';
 import type { CommentGrabMessage } from '@/shared/messaging';
+import { getSettings } from '@/shared/storage';
 import { scrapeReddit, type ProgressFn, type ShouldStop } from './scrapers/reddit';
 import { scrapeRedditProfile } from './scrapers/reddit-profile';
 import { scrapeHackerNews } from './scrapers/hackernews';
@@ -105,5 +106,26 @@ chrome.runtime.onInstalled.addListener((details) => {
     // Open the setup page (language + optional API key) on first install.
     const url = chrome.runtime.getURL('src/dashboard/index.html') + '#/welcome';
     chrome.tabs.create({ url }).catch(() => {});
+  } else if (details.reason === 'update') {
+    void openChangelogAfterUpdate(details.previousVersion);
   }
 });
+
+/** "1.2.3" -> "1.2": only minor and major releases open the changelog, never a patch or a dev reload. */
+function minorOf(version = ''): string {
+  return version.split('.').slice(0, 2).join('.');
+}
+
+async function openChangelogAfterUpdate(previousVersion?: string): Promise<void> {
+  const current = chrome.runtime.getManifest().version;
+  // Kept for support: what the last update looked like from the extension's side.
+  chrome.storage.local.set({ 'commentgrab:lastUpdate': { from: previousVersion ?? null, to: current, at: Date.now() } }).catch(() => {});
+  if (!previousVersion || minorOf(previousVersion) === minorOf(current)) return;
+  try {
+    if (!(await getSettings()).openChangelogOnUpdate) return;
+  } catch {
+    /* settings unreadable: keep the default (open) */
+  }
+  const anchor = `v${current.replace(/\./g, '-')}`;
+  chrome.tabs.create({ url: `https://commentgrab.app/changelog#${anchor}`, active: true }).catch(() => {});
+}

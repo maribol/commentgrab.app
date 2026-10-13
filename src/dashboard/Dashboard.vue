@@ -109,11 +109,13 @@
               <span>@samtodosiciuc</span>
             </a>
             <a
-              href="mailto:sam@elasticfunnels.io"
+              href="https://commentgrab.app/contact"
+              target="_blank"
+              rel="noopener"
               class="flex items-center gap-2 text-[11px] font-medium text-faint transition hover:text-ink"
             >
               <Mail class="h-3 w-3 shrink-0" />
-              <span>sam@elasticfunnels.io</span>
+              <span>{{ t('nav.contact') }}</span>
             </a>
             <a
               :href="bugUrl"
