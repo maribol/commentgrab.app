@@ -92,7 +92,18 @@ export function buildJson(
 
 /* ----------------------------- Markdown ------------------------------- */
 
-export function buildMarkdown(comments: Comment[], post: Post | null, settings: ExportSettings): string {
+/** One-line credit at the end of every Markdown export. */
+export function markdownFooter(): string {
+  const day = new Date().toISOString().slice(0, 10);
+  return `\n---\n\n*Exported with [CommentGrab](https://commentgrab.app) on ${day}.*\n`;
+}
+
+export function buildMarkdown(
+  comments: Comment[],
+  post: Post | null,
+  settings: ExportSettings,
+  opts: { footer?: boolean } = {},
+): string {
   const lines: string[] = [];
 
   if (settings.includePostInfo && post) {
@@ -118,7 +129,7 @@ export function buildMarkdown(comments: Comment[], post: Post | null, settings: 
     lines.push('');
   });
 
-  return lines.join('\n');
+  return lines.join('\n') + (opts.footer === false ? '' : markdownFooter());
 }
 
 /* ---------------------------- Clipboard ------------------------------- */
@@ -222,7 +233,7 @@ export async function exportAnalysis(
   analysis: AnalysisResult,
   meta: AnalysisMeta = {},
 ): Promise<ExportOutcome> {
-  const md = buildAnalysisMarkdown(analysis, meta);
+  const md = buildAnalysisMarkdown(analysis, meta) + markdownFooter();
   if (format === 'clipboard') {
     const ok = await copyText(md);
     return { ok, format: 'clipboard', count: 1 };
@@ -375,7 +386,7 @@ export async function exportCollectionsCombined(
   }
 
   if (format === 'markdown') {
-    const md = list.map((c) => buildMarkdown(c.comments, c.post, settings)).join('\n\n---\n\n');
+    const md = list.map((c) => buildMarkdown(c.comments, c.post, settings, { footer: false })).join('\n\n---\n\n') + markdownFooter();
     downloadBlob(md, buildFilename(label, platform, 'md'), 'text/markdown;charset=utf-8;');
     return { ok: true, count: list.length };
   }
@@ -436,7 +447,7 @@ export async function exportAnalysesCombined(
 
   const md = withAnalysis
     .map((c) => buildAnalysisMarkdown(c.analysis!, { title: c.title, platform: c.platform, url: c.url, commentCount: c.commentCount }))
-    .join('\n\n---\n\n');
+    .join('\n\n---\n\n') + markdownFooter();
   if (format === 'clipboard') return { ok: await copyText(md), count: withAnalysis.length };
   downloadBlob(md, buildFilename(label, platform, 'md'), 'text/markdown;charset=utf-8;');
   return { ok: true, count: withAnalysis.length };
