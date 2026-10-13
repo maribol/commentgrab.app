@@ -5,7 +5,7 @@
       "id": "2026-10-13-v1-2-0",
       "date": "2026-10-13",
       "title": "A new look, and insights for every thread and board",
-      "body": "The dashboard, popup and capture widget have a new design, with a dark mode that follows your system setting.\n\n- You can dismiss the capture widget, and it hides itself while a video plays fullscreen.\n- Insights now run per thread and per board, so you can read the objections and hooks for one post or for a whole board in one place.",
+      "body": "CommentGrab has a new design and a new logo, with a dark mode that follows your system setting.\n\n- Each saved thread now has a Comments tab and an Insights tab.\n- Analyze a whole board, or a batch of posts, as one combined report.\n- Before anything goes to OpenAI you see the model, the comments sent and an estimated cost, and you can turn the check off in Settings.\n- The capture widget has a close button and stays hidden while a video plays fullscreen.\n- News and release notes now show up here, under What's new.",
       "tag": "release",
       "minVersion": "1.2.0",
       "url": "https://commentgrab.app/changelog",
