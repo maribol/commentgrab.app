@@ -85,6 +85,7 @@
             <AlertCircle class="mt-0.5 h-4 w-4 shrink-0" />
             <span>{{ error }}</span>
           </div>
+          <ReportProblemLink v-if="errorReportable" class="mt-1.5" where="popup" :platform="platform" :error="error" :page="tabUrl" />
           <SpButton variant="secondary" class="mt-2.5 w-full" :icon="RefreshCw" @click="scrape()">{{ t('pop.tryAgain') }}</SpButton>
         </template>
       </SpCard>
@@ -137,6 +138,7 @@
             <AlertCircle class="mt-0.5 h-4 w-4 shrink-0" />
             <span>{{ error }}</span>
           </div>
+          <ReportProblemLink v-if="errorReportable" class="mt-1.5" where="popup" platform="reddit" :error="error" :page="tabUrl" />
           <SpButton variant="secondary" class="mt-2.5 w-full" :icon="RefreshCw" @click="runBatch()">{{ t('pop.tryAgain') }}</SpButton>
         </template>
       </SpCard>
@@ -209,7 +211,7 @@ import { t } from '@/shared/i18n';
 import { runScrape, finalizeScrape, saveAndLink, saveBatch } from '@/shared/scrape';
 import { exportComments } from '@/shared/export';
 import { recordExport } from '@/shared/stats';
-import { formatNumber } from '@/shared/util';
+import { formatNumber, reportProblemUrl } from '@/shared/util';
 import SpCard from '@/ui/components/SpCard.vue';
 import SpButton from '@/ui/components/SpButton.vue';
 import SpProgress from '@/ui/components/SpProgress.vue';
@@ -220,6 +222,7 @@ import PlatformGlyph from '@/ui/components/PlatformGlyph.vue';
 import BrandMark from '@/ui/components/BrandMark.vue';
 import BoardPicker from '@/ui/components/BoardPicker.vue';
 import ReviewPrompt from '@/ui/components/ReviewPrompt.vue';
+import ReportProblemLink from '@/ui/components/ReportProblemLink.vue';
 import { useToast } from '@/ui/composables/useToast';
 
 const toast = useToast();
@@ -242,6 +245,9 @@ const savedId = ref<string | null>(null);
 const historyId = ref<string | null>(null);
 const stopping = ref(false);
 const error = ref('');
+// Not a failure (the user's own filter skipped everything), so no report link for it.
+const ALL_SKIPPED_MSG = 'Every top post here is already in your library. Uncheck “Skip already-scraped” to re-scrape.';
+const errorReportable = computed(() => !!error.value && error.value !== ALL_SKIPPED_MSG);
 const settings = ref<AppSettings>({ ...DEFAULT_SETTINGS });
 const stats = ref<Stats>({ ...EMPTY_STATS });
 const savedCount = ref(0);
@@ -332,7 +338,7 @@ async function runBatch(): Promise<void> {
     stubs = stubs.filter((s) => !known.has(threadKey(s.url)));
     if (!stubs.length) {
       status.value = 'error';
-      error.value = 'Every top post here is already in your library. Uncheck “Skip already-scraped” to re-scrape.';
+      error.value = ALL_SKIPPED_MSG;
       return;
     }
   }
@@ -425,7 +431,7 @@ async function exportAs(format: ExportFormat): Promise<void> {
     stats.value = await getStats();
     toast.success(format === 'clipboard' ? 'Copied to clipboard' : `Exported ${outcome.count.toLocaleString()} ${unit.value}`);
   } else {
-    toast.error('Export failed.');
+    toast.errorWithReport('Export failed.', reportProblemUrl({ where: 'popup', platform: platform.value ?? undefined, error: 'Export failed.', page: tabUrl.value }));
   }
 }
 
@@ -457,7 +463,7 @@ async function confirmSave(): Promise<void> {
       toast.success(savedId.value ? `Saved ${res.comments.length.toLocaleString()} ${unit.value} to your library` : 'Boards updated');
     }
   } catch {
-    toast.error('Could not save — local storage may be full.');
+    toast.errorWithReport('Could not save — local storage may be full.', reportProblemUrl({ where: 'popup', platform: platform.value ?? undefined, error: 'Could not save — local storage may be full.', page: tabUrl.value }));
   }
 }
 

@@ -9,7 +9,20 @@
         <span class="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full" :class="iconWrap(t.type)">
           <component :is="iconFor(t.type)" class="h-3.5 w-3.5" />
         </span>
-        <p class="flex-1 text-sm leading-snug text-ink-soft">{{ t.message }}</p>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm leading-snug text-ink-soft">{{ t.message }}</p>
+          <a
+            v-if="t.reportHref"
+            :href="t.reportHref"
+            target="_blank"
+            rel="noopener"
+            class="mt-1 inline-flex items-center gap-1 text-[12px] font-medium text-muted transition hover:text-ink"
+            data-report-problem
+          >
+            <Bug class="h-3 w-3 shrink-0" />
+            {{ tr('common.reportProblem') }}
+          </a>
+        </div>
         <button class="text-faint transition hover:text-muted" @click="dismiss(t.id)">
           <X class="h-4 w-4" />
         </button>
@@ -19,7 +32,8 @@
 </template>
 
 <script setup lang="ts">
-import { CheckCircle2, AlertCircle, Info, X } from 'lucide-vue-next';
+import { CheckCircle2, AlertCircle, Info, X, Bug } from 'lucide-vue-next';
+import { t as tr } from '@/shared/i18n';
 import { useToast, type ToastType } from '../composables/useToast';
 
 const { toasts, dismiss } = useToast();

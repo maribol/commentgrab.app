@@ -74,24 +74,63 @@ export function sleep(ms: number): Promise<void> {
 
 export const SUPPORT_EMAIL = 'sam@elasticfunnels.io';
 
-/** A prefilled mailto link for bug reports, with a simple template + version. */
-export function bugReportMailto(version = ''): string {
-  const subject = `CommentGrab bug report${version ? ` (v${version})` : ''}`;
-  const body = [
-    'What happened:',
-    '',
-    '',
-    'What you expected:',
-    '',
-    '',
-    'Steps to reproduce:',
-    '',
-    '',
-    '---',
-    `CommentGrab${version ? ` v${version}` : ''}`,
-    `Browser: ${typeof navigator !== 'undefined' ? navigator.userAgent : ''}`,
-  ].join('\n');
-  return `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+/** The bug-report form on the website. Context travels in the URL fragment so it never reaches server logs. */
+export const REPORT_PROBLEM_URL = 'https://commentgrab.app/report';
+
+export type ReportWhere = 'popup' | 'widget' | 'dashboard';
+
+/** A short browser + OS label such as "Chrome 141 / macOS" (never the full UA). */
+export function shortBrowser(): string {
+  if (typeof navigator === 'undefined') return '';
+  const nav = navigator as Navigator & {
+    userAgentData?: { brands?: Array<{ brand: string; version: string }>; platform?: string };
+  };
+  const ua = nav.userAgent || '';
+  let browser = '';
+  const brands = nav.userAgentData?.brands ?? [];
+  const pick = brands.find((b) => !/not.?a.?brand|chromium/i.test(b.brand)) ?? brands.find((b) => /chromium/i.test(b.brand));
+  if (pick) browser = `${pick.brand.replace(/^Google /, '')} ${pick.version}`;
+  if (!browser) {
+    const m =
+      ua.match(/(Edg|OPR|Firefox|Chrome)\/(\d+)/) ?? ua.match(/Version\/(\d+).*Safari/);
+    if (m) {
+      const names: Record<string, string> = { Edg: 'Edge', OPR: 'Opera' };
+      browser = m.length > 2 ? `${names[m[1]] ?? m[1]} ${m[2]}` : `Safari ${m[1]}`;
+    }
+  }
+  let os = nav.userAgentData?.platform || '';
+  if (!os) {
+    if (/Windows/.test(ua)) os = 'Windows';
+    else if (/CrOS/.test(ua)) os = 'ChromeOS';
+    else if (/Android/.test(ua)) os = 'Android';
+    else if (/iPhone|iPad/.test(ua)) os = 'iOS';
+    else if (/Mac OS X/.test(ua)) os = 'macOS';
+    else if (/Linux/.test(ua)) os = 'Linux';
+  }
+  return [browser, os].filter(Boolean).join(' / ').slice(0, 60);
+}
+
+/**
+ * Link to the website's report form, prefilled through the URL fragment
+ * (#v=…&where=…&platform=…&error=…&page=…&ua=…). Opening it sends nothing;
+ * only submitting the form on the site does.
+ */
+export function reportProblemUrl(opts: { where: ReportWhere; platform?: string; error?: string; page?: string }): string {
+  const params = new URLSearchParams();
+  let version = '';
+  try {
+    version = chrome.runtime.getManifest().version;
+  } catch {
+    /* not in an extension context */
+  }
+  if (version) params.set('v', version);
+  params.set('where', opts.where);
+  if (opts.platform) params.set('platform', opts.platform);
+  if (opts.error) params.set('error', String(opts.error).trim().slice(0, 500));
+  if (opts.page) params.set('page', opts.page.slice(0, 500));
+  const ua = shortBrowser();
+  if (ua) params.set('ua', ua);
+  return `${REPORT_PROBLEM_URL}#${params.toString()}`;
 }
 
 /**

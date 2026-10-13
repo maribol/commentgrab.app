@@ -182,7 +182,7 @@ import { platformLabel } from '@/shared/platform';
 import { analyzeComments, generateAdAngles } from '@/shared/openai';
 import { exportCollectionsCombined, exportAnalysesCombined } from '@/shared/export';
 import { recordExport } from '@/shared/stats';
-import { relativeTime } from '@/shared/util';
+import { relativeTime, reportProblemUrl } from '@/shared/util';
 import { t } from '@/shared/i18n';
 import { navigate, pendingRuns, setCrumb } from '../router';
 import { combinedSource, type InsightsSource } from '@/shared/insights';
@@ -336,7 +336,8 @@ async function analyzeSelected(): Promise<void> {
       c.analysis = analysis; // reflect in the row immediately
       ok++;
     } catch (e) {
-      toast.error((e as Error).message || 'Analysis failed.');
+      const msg = (e as Error).message || 'Analysis failed.';
+      toast.errorWithReport(msg, reportProblemUrl({ where: 'dashboard', platform: c.platform, error: msg, page: c.url }));
     }
     analyzeDone.value++;
   }
@@ -354,7 +355,7 @@ async function exportSelected(format: ExportFormat): Promise<void> {
       await recordExport(format, 1);
       toast.success(t('batch.exported', { count: res.count }));
     } else {
-      toast.error('Export failed.');
+      toast.errorWithReport('Export failed.', reportProblemUrl({ where: 'dashboard', platform: batch.value?.platform, error: 'Export failed.', page: batch.value?.url }));
     }
   } finally {
     exporting.value = false;

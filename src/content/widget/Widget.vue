@@ -121,6 +121,16 @@
               <AlertCircle class="mt-[2px] h-[16px] w-[16px] shrink-0" />
               <span>{{ error }}</span>
             </div>
+            <a
+              :href="reportHref(error)"
+              target="_blank"
+              rel="noopener"
+              class="mt-[6px] inline-flex items-center gap-[4px] text-[12px] font-medium text-muted no-underline outline-none transition hover:text-ink"
+              data-report-problem
+            >
+              <Bug class="h-[12px] w-[12px] shrink-0" />
+              <span>{{ t('common.reportProblem') }}</span>
+            </a>
             <button class="mt-[10px] flex w-full items-center justify-center gap-[6px] rounded-[10px] border border-line-strong bg-surface py-[10px] text-[14px] font-semibold text-ink-soft outline-none transition hover:bg-canvas-2" @click="doScrape()">
               <RefreshCw class="h-[16px] w-[16px]" />
               <span>{{ t('pop.tryAgain') }}</span>
@@ -129,10 +139,23 @@
 
           <!-- inline flash -->
           <Transition name="panel">
-            <div v-if="flashMsg" class="mt-[10px] flex items-center gap-[6px] text-[12px] font-medium" :class="flashErr ? 'text-[#c23a3a] dark:text-[#f08a8a]' : 'text-[#1f7a45] dark:text-[#6fcf97]'">
-              <CheckCircle2 v-if="!flashErr" class="h-[14px] w-[14px]" />
-              <AlertCircle v-else class="h-[14px] w-[14px]" />
-              <span>{{ flashMsg }}</span>
+            <div v-if="flashMsg" class="mt-[10px]">
+              <div class="flex items-center gap-[6px] text-[12px] font-medium" :class="flashErr ? 'text-[#c23a3a] dark:text-[#f08a8a]' : 'text-[#1f7a45] dark:text-[#6fcf97]'">
+                <CheckCircle2 v-if="!flashErr" class="h-[14px] w-[14px]" />
+                <AlertCircle v-else class="h-[14px] w-[14px]" />
+                <span>{{ flashMsg }}</span>
+              </div>
+              <a
+                v-if="flashErr"
+                :href="reportHref(flashMsg)"
+                target="_blank"
+                rel="noopener"
+                class="mt-[4px] inline-flex items-center gap-[4px] text-[12px] font-medium text-muted no-underline outline-none transition hover:text-ink"
+                data-report-problem
+              >
+                <Bug class="h-[12px] w-[12px] shrink-0" />
+                <span>{{ t('common.reportProblem') }}</span>
+              </a>
             </div>
           </Transition>
 
@@ -211,6 +234,7 @@ import {
   FileText,
   Copy,
   WandSparkles as Wand,
+  Bug,
 } from 'lucide-vue-next';
 import type { AppSettings, ExportFormat, ScrapeResult } from '@/shared/types';
 import { DEFAULT_SETTINGS } from '@/shared/types';
@@ -221,6 +245,7 @@ import { t } from '@/shared/i18n';
 import { finalizeScrape, saveAndLink } from '@/shared/scrape';
 import { exportComments } from '@/shared/export';
 import { recordExport } from '@/shared/stats';
+import { reportProblemUrl } from '@/shared/util';
 import SpProgress from '@/ui/components/SpProgress.vue';
 import PlatformGlyph from '@/ui/components/PlatformGlyph.vue';
 import BrandMark from '@/ui/components/BrandMark.vue';
@@ -298,10 +323,18 @@ watch(
   },
 );
 
+let flashTimer = 0;
 function flash(message: string, isError = false): void {
   flashMsg.value = message;
   flashErr.value = isError;
-  window.setTimeout(() => (flashMsg.value = ''), 2600);
+  window.clearTimeout(flashTimer);
+  // Errors stay longer so the "Report this problem" link under them can be clicked.
+  flashTimer = window.setTimeout(() => (flashMsg.value = ''), isError ? 9000 : 2600);
+}
+
+/** Link to the site's report form (data in the fragment; opening it sends nothing). */
+function reportHref(message: string): string {
+  return reportProblemUrl({ where: 'widget', platform: platform.value ?? undefined, error: message, page: location.href });
 }
 
 async function doScrape(): Promise<ScrapeResult | null> {

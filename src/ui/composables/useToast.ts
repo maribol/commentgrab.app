@@ -6,6 +6,8 @@ export interface Toast {
   id: number;
   message: string;
   type: ToastType;
+  /** Optional "Report this problem" link (the site's report form) shown under an error. */
+  reportHref?: string;
 }
 
 const state = reactive<{ toasts: Toast[] }>({ toasts: [] });
@@ -16,9 +18,9 @@ function dismiss(id: number): void {
   if (idx >= 0) state.toasts.splice(idx, 1);
 }
 
-function push(message: string, type: ToastType = 'info', ttl = 2800): number {
+function push(message: string, type: ToastType = 'info', ttl = 2800, reportHref?: string): number {
   const id = ++seq;
-  state.toasts.push({ id, message, type });
+  state.toasts.push({ id, message, type, reportHref });
   if (ttl > 0) window.setTimeout(() => dismiss(id), ttl);
   return id;
 }
@@ -30,6 +32,8 @@ export function useToast() {
     dismiss,
     success: (m: string, ttl?: number) => push(m, 'success', ttl),
     error: (m: string, ttl?: number) => push(m, 'error', ttl ?? 4200),
+    /** An error toast with a "Report this problem" link; stays longer so the link can be clicked. */
+    errorWithReport: (m: string, reportHref: string, ttl?: number) => push(m, 'error', ttl ?? 9000, reportHref),
     info: (m: string, ttl?: number) => push(m, 'info', ttl),
   };
 }

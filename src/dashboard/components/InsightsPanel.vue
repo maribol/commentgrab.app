@@ -26,6 +26,7 @@
         <button v-if="running" class="text-[13px] font-medium text-muted underline-offset-2 hover:text-ink hover:underline" @click="cancel()">{{ t('est.cancelRun') }}</button>
       </div>
       <p v-if="error" class="mt-3 text-[13px] text-rose-600">{{ error }}</p>
+      <ReportProblemLink v-if="error" class="mt-1" where="dashboard" :platform="meta.platform" :error="error" :page="meta.url" />
       <p class="mt-2 text-[12px] text-faint">{{ t('an.using', { model: settings.openAiModel }) }}</p>
     </section>
 
@@ -93,6 +94,7 @@
           <p class="max-w-sm text-[13.5px] text-muted">{{ t('an.adAnglesEmpty') }}</p>
           <SpButton class="mt-3" variant="secondary" size="sm" :class="anglesRunning ? 'disabled:!opacity-100' : ''" :icon="Sparkles" :loading="anglesRunning" @click="runAngles()">{{ anglesRunning ? t('an.analyzing') : t('an.generateAngles') }}</SpButton>
           <p v-if="anglesError" class="mt-2 text-[13px] text-rose-600">{{ anglesError }}</p>
+          <ReportProblemLink v-if="anglesError" class="mt-1" where="dashboard" :platform="meta.platform" :error="anglesError" :page="meta.url" />
         </div>
       </section>
 
@@ -153,6 +155,8 @@ import { useToast } from '@/ui/composables/useToast';
 import SpButton from '@/ui/components/SpButton.vue';
 import SentimentBar from './SentimentBar.vue';
 import InsightList from './InsightList.vue';
+import ReportProblemLink from '@/ui/components/ReportProblemLink.vue';
+import { reportProblemUrl } from '@/shared/util';
 
 const props = defineProps<{
   analysis: AnalysisResult | null;
@@ -174,6 +178,11 @@ const error = ref('');
 const anglesRunning = ref(false);
 const anglesError = ref('');
 const hooksRunning = ref(false);
+
+/** Report-form link for a failure here; the page is the collection's public source URL. */
+function reportHref(message: string): string {
+  return reportProblemUrl({ where: 'dashboard', platform: props.meta.platform, error: message, page: props.meta.url });
+}
 
 const canRun = computed(() => (props.meta.commentCount ?? 0) > 0);
 const maxMentions = computed(() => Math.max(1, ...(props.analysis?.topThemes ?? []).map((x) => x.mentions)));
@@ -293,7 +302,10 @@ async function exportAs(format: 'markdown' | 'clipboard'): Promise<void> {
   if (!props.analysis) return;
   const outcome = await exportAnalysis(format, props.analysis, props.meta);
   if (outcome.ok) toast.success(format === 'clipboard' ? 'Analysis copied to clipboard' : 'Analysis exported');
-  else toast.error(format === 'clipboard' ? 'Copy failed.' : 'Export failed.');
+  else {
+    const msg = format === 'clipboard' ? 'Copy failed.' : 'Export failed.';
+    toast.errorWithReport(msg, reportHref(msg));
+  }
 }
 
 async function copyAngles(): Promise<void> {
@@ -334,7 +346,7 @@ async function regenHooks(): Promise<void> {
     toast.success('Hooks regenerated');
   } catch (e) {
     const msg = failed(e, 'Could not regenerate hooks.');
-    if (msg) toast.error(msg);
+    if (msg) toast.errorWithReport(msg, reportHref(msg));
   } finally {
     hooksRunning.value = false;
     controller = null;

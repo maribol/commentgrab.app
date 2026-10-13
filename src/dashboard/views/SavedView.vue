@@ -193,7 +193,7 @@ import { platformLabel, PLATFORM_META } from '@/shared/platform';
 import { exportComments } from '@/shared/export';
 import { recordExport } from '@/shared/stats';
 import type { InsightsSource } from '@/shared/insights';
-import { relativeTime, formatDate, formatDateTime } from '@/shared/util';
+import { relativeTime, formatDate, formatDateTime, reportProblemUrl } from '@/shared/util';
 import { t } from '@/shared/i18n';
 import { navigate, setCrumb, pendingRuns } from '../router';
 import { useToast } from '@/ui/composables/useToast';
@@ -343,7 +343,8 @@ async function exportAs(format: ExportFormat): Promise<void> {
     await recordExport(format, 1);
     toast.success(format === 'clipboard' ? 'Copied to clipboard' : `Exported ${outcome.count.toLocaleString()} comments`);
   } else {
-    toast.error('Export failed.');
+    const c = collection.value;
+    toast.errorWithReport('Export failed.', reportProblemUrl({ where: 'dashboard', platform: c.platform, error: 'Export failed.', page: c.url }));
   }
 }
 
