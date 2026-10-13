@@ -139,7 +139,7 @@
         <div class="flex items-center gap-2.5">
           <BrandMark :size="36" />
           <div>
-            <div class="text-[15px] font-bold tracking-tight text-ink">CommentGrab <span class="font-medium text-faint">v1.0.0</span></div>
+            <div class="text-[15px] font-bold tracking-tight text-ink">CommentGrab <span class="font-medium text-faint">v{{ appVersion }}</span></div>
             <div class="text-xs text-muted">Free, source-available comment exporter · PolyForm Shield</div>
           </div>
         </div>
@@ -183,6 +183,7 @@ import BrandMark from '@/ui/components/BrandMark.vue';
 import SelectField from '../components/SelectField.vue';
 
 const toast = useToast();
+const appVersion = chrome.runtime.getManifest().version;
 const form = reactive<AppSettings>({ ...DEFAULT_SETTINGS, export: { ...DEFAULT_SETTINGS.export } });
 const keyInput = ref('');
 const showKey = ref(false);

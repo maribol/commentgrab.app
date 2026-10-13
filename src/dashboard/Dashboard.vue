@@ -79,6 +79,7 @@
         </div>
 
         <div v-if="!collapsed" class="space-y-3 pt-3">
+          <LatestAnnouncementCard />
 
           <div class="rounded-xl border border-line bg-canvas p-3.5">
             <div class="flex items-center gap-2 text-[13.5px] font-semibold text-ink">
@@ -123,7 +124,7 @@
           </div>
 
           <div class="flex items-center justify-between px-1.5 text-[11px] text-faint">
-            <span>v1.1.0 · PolyForm Shield</span>
+            <span>v{{ appVersion }} · PolyForm Shield</span>
             <span class="font-medium">Source-available</span>
           </div>
         </div>
@@ -191,6 +192,7 @@ import Onboarding from './Onboarding.vue';
 import CommandPalette from './components/CommandPalette.vue';
 import RunConfirm from './components/RunConfirm.vue';
 import WhatsNew from './components/WhatsNew.vue';
+import LatestAnnouncementCard from './components/LatestAnnouncementCard.vue';
 import ReviewPrompt from '@/ui/components/ReviewPrompt.vue';
 import wordmark from '@/assets/brand/wordmark.svg';
 import wordmarkDark from '@/assets/brand/wordmark-dark.svg';
@@ -210,7 +212,8 @@ const collapsed = ref(false);
 const paletteOpen = ref(false);
 
 const active = computed(() => route.segments[0] || 'overview');
-const bugUrl = bugReportMailto(chrome.runtime.getManifest().version);
+const appVersion = chrome.runtime.getManifest().version;
+const bugUrl = bugReportMailto(appVersion);
 
 // Insights now live with the item: the old /analyze/:id link (still used by the
 // widget and popup hand-off) lands on the collection's Insights tab instead.

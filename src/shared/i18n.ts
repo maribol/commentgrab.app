@@ -923,26 +923,31 @@ const extra3: Record<Locale, Record<string, string>> = {
     'wn.title': "What's new", 'wn.gotIt': 'Got it', 'wn.readMore': 'Read more', 'wn.empty': 'No announcements yet',
     'wn.emptyBody': 'Release notes and tips will show up here.', 'wn.changelog': 'Full changelog', 'wn.new': 'New',
     'wn.tag.release': 'Release', 'wn.tag.news': 'News', 'wn.tag.tip': 'Tip', 'wn.tag.post': 'Blog',
+    'wn.dismiss': 'Dismiss', 'wn.allUpdates': 'All updates',
   },
   es: {
     'wn.title': 'Novedades', 'wn.gotIt': 'Entendido', 'wn.readMore': 'Leer más', 'wn.empty': 'Aún no hay anuncios',
     'wn.emptyBody': 'Aquí verás las notas de versión y los consejos.', 'wn.changelog': 'Historial de cambios', 'wn.new': 'Nuevo',
     'wn.tag.release': 'Versión', 'wn.tag.news': 'Noticia', 'wn.tag.tip': 'Consejo', 'wn.tag.post': 'Blog',
+    'wn.dismiss': 'Descartar', 'wn.allUpdates': 'Todas las novedades',
   },
   pt: {
     'wn.title': 'Novidades', 'wn.gotIt': 'Entendi', 'wn.readMore': 'Saiba mais', 'wn.empty': 'Nenhum anúncio ainda',
     'wn.emptyBody': 'As notas de versão e as dicas aparecerão aqui.', 'wn.changelog': 'Histórico de mudanças', 'wn.new': 'Novo',
     'wn.tag.release': 'Versão', 'wn.tag.news': 'Notícia', 'wn.tag.tip': 'Dica', 'wn.tag.post': 'Blog',
+    'wn.dismiss': 'Dispensar', 'wn.allUpdates': 'Todas as novidades',
   },
   fr: {
     'wn.title': 'Nouveautés', 'wn.gotIt': 'Compris', 'wn.readMore': 'En savoir plus', 'wn.empty': 'Aucune annonce pour le moment',
     'wn.emptyBody': 'Les notes de version et les astuces apparaîtront ici.', 'wn.changelog': 'Journal des modifications', 'wn.new': 'Nouveau',
     'wn.tag.release': 'Version', 'wn.tag.news': 'Actualité', 'wn.tag.tip': 'Astuce', 'wn.tag.post': 'Blog',
+    'wn.dismiss': 'Masquer', 'wn.allUpdates': 'Toutes les nouveautés',
   },
   de: {
     'wn.title': 'Neuigkeiten', 'wn.gotIt': 'Verstanden', 'wn.readMore': 'Mehr erfahren', 'wn.empty': 'Noch keine Ankündigungen',
     'wn.emptyBody': 'Versionshinweise und Tipps erscheinen hier.', 'wn.changelog': 'Vollständiges Änderungsprotokoll', 'wn.new': 'Neu',
     'wn.tag.release': 'Version', 'wn.tag.news': 'News', 'wn.tag.tip': 'Tipp', 'wn.tag.post': 'Blog',
+    'wn.dismiss': 'Ausblenden', 'wn.allUpdates': 'Alle Neuigkeiten',
   },
 };
 

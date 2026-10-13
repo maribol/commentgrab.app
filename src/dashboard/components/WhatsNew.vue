@@ -93,13 +93,14 @@
   </Teleport>
 
   <!-- One-time modal for an unseen item flagged "modal": true -->
-  <SpModal :open="!!modalItem" size="md" :title="modalItem?.title" @close="dismissModal">
+  <SpModal :open="!!modalItem" size="md" :title="t('wn.title')" @close="dismissModal">
     <div v-if="modalItem" class="px-6 py-5">
       <div class="flex items-center gap-2 text-[12px] text-faint">
         <span class="chip" :class="tagClass(modalItem.tag)">{{ t(`wn.tag.${modalItem.tag}`) }}</span>
         <time :datetime="modalItem.date">{{ formatDate(modalItem.date) }}</time>
       </div>
-      <AnnouncementBody :body="modalItem.body" class="mt-3" />
+      <h3 class="mt-3 text-[17px] font-semibold leading-snug tracking-tight text-ink">{{ modalItem.title }}</h3>
+      <AnnouncementBody :body="modalItem.body" class="mt-2" />
       <a
         v-if="modalItem.url"
         :href="modalItem.url"
@@ -127,10 +128,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, nextTick, onMounted, ref, type PropType } from 'vue';
+import { computed, defineComponent, h, nextTick, onMounted, ref, watch, type PropType } from 'vue';
 import { Megaphone, X, ArrowUpRight } from 'lucide-vue-next';
 import SpModal from '@/ui/components/SpModal.vue';
-import { t, currentLocale } from '@/shared/i18n';
+import { t } from '@/shared/i18n';
 import {
   CHANGELOG_URL,
   isUnread,
@@ -138,13 +139,18 @@ import {
   markAllSeen,
   markSeen,
   store,
+  takeModalItem,
   type Announcement,
-  type AnnouncementTag,
 } from '@/shared/announcements';
+import { formatDate, parseBody, tagClass } from './announcementUi';
 
 withDefaults(defineProps<{ collapsed?: boolean }>(), { collapsed: false });
 
-const panelOpen = ref(false);
+/** Shared so the sidebar card's "All updates" link can open it. */
+const panelOpen = computed({
+  get: () => store.panelOpen,
+  set: (v: boolean) => (store.panelOpen = v),
+});
 const panelEl = ref<HTMLElement | null>(null);
 const modalItem = ref<Announcement | null>(null);
 /** Ids that were unread when the panel opened, so their "New" chip survives markAllSeen. */
@@ -153,14 +159,21 @@ let modalChecked = false;
 
 const unread = computed(() => store.items.filter((i) => isUnread(i, store.seen)).length);
 
-async function openPanel(): Promise<void> {
-  openedUnread.value = new Set(store.items.filter((i) => isUnread(i, store.seen)).map((i) => i.id));
-  panelOpen.value = true;
-  modalItem.value = null;
-  if (store.items.length) await markAllSeen(store.items);
-  await nextTick();
-  panelEl.value?.focus();
+function openPanel(): void {
+  store.panelOpen = true;
 }
+
+watch(
+  () => store.panelOpen,
+  async (open) => {
+    if (!open) return;
+    openedUnread.value = new Set(store.items.filter((i) => isUnread(i, store.seen)).map((i) => i.id));
+    modalItem.value = null;
+    if (store.items.length) await markAllSeen(store.items);
+    await nextTick();
+    panelEl.value?.focus();
+  },
+);
 
 async function dismissModal(): Promise<void> {
   const item = modalItem.value;
@@ -173,30 +186,16 @@ function onWelcome(): boolean {
   return /^#\/?welcome\b/.test(location.hash);
 }
 
-function maybeShowModal(): void {
-  if (modalChecked || !store.loaded || panelOpen.value || onWelcome()) return;
+/**
+ * One-time modal. The decision uses only the modalShown store (synced across
+ * the user's Chrome profiles); takeModalItem records the id before the modal
+ * renders, so however it is closed it never opens again.
+ */
+async function maybeShowModal(): Promise<void> {
+  if (modalChecked || !store.ready || store.panelOpen || onWelcome()) return;
   modalChecked = true;
-  const next = store.items.find((i) => i.modal && isUnread(i, store.seen));
-  if (next) modalItem.value = next;
-}
-
-function tagClass(tag: AnnouncementTag): string {
-  return {
-    release: 'bg-brand-50 text-brand-600 dark:bg-commentgrab-soft dark:text-commentgrab-violet',
-    news: 'bg-[#e7f5ec] text-[#1f7a45] dark:bg-[#1f7a45]/20 dark:text-[#6fcf97]',
-    tip: 'bg-[#fdeede] text-[#b5651d] dark:bg-[#b5651d]/20 dark:text-[#f0b070]',
-    post: 'bg-[#e7f0fd] text-[#2c5fb3] dark:bg-[#2c5fb3]/20 dark:text-[#7aa9ee]',
-  }[tag];
-}
-
-function formatDate(d: string): string {
-  try {
-    return new Intl.DateTimeFormat(currentLocale(), { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(
-      new Date(`${d}T00:00:00Z`),
-    );
-  } catch {
-    return d;
-  }
+  const next = await takeModalItem(store.items);
+  if (next && !store.panelOpen && !onWelcome()) modalItem.value = next;
 }
 
 /**
@@ -207,24 +206,16 @@ function formatDate(d: string): string {
 const AnnouncementBody = defineComponent({
   props: { body: { type: String as PropType<string>, required: true } },
   setup(p) {
-    return () => {
-      const blocks = p.body.split(/\n{2,}/).map((b) => b.split('\n'));
-      return h(
+    return () =>
+      h(
         'div',
         { class: 'space-y-2 text-[13.5px] leading-relaxed text-ink-soft' },
-        blocks.map((lines) => {
-          const bullets = lines.every((l) => /^\s*[-*•]\s+/.test(l));
-          if (bullets) {
-            return h(
-              'ul',
-              { class: 'list-disc space-y-1 pl-5 marker:text-faint' },
-              lines.map((l) => h('li', l.replace(/^\s*[-*•]\s+/, ''))),
-            );
-          }
-          return h('p', { class: 'whitespace-pre-line' }, lines.join('\n'));
-        }),
+        parseBody(p.body).map((b) =>
+          b.kind === 'list'
+            ? h('ul', { class: 'list-disc space-y-1 pl-5 marker:text-faint' }, b.items.map((l) => h('li', l)))
+            : h('p', { class: 'whitespace-pre-line' }, b.text),
+        ),
       );
-    };
   },
 });
 
@@ -236,7 +227,7 @@ onMounted(async () => {
   } catch {
     /* bundled copy already painted */
   }
-  maybeShowModal();
+  await maybeShowModal();
 });
 </script>
 

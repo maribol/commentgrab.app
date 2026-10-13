@@ -66,6 +66,12 @@ const KEYS = {
   seen: 'commentgrab:announcements:seen',
   /** Written by the service worker on a fresh install (see onInstalled). */
   installedAt: 'commentgrab:installedAt',
+  /** Modal items already shown once (chrome.storage.sync, local as fallback). */
+  modalShown: 'commentgrab:announcements:modalShown',
+  /** Set once this device has seeded modalShown (fresh installs skip current modals). */
+  modalSeeded: 'commentgrab:announcements:modalSeeded',
+  /** Ids whose sidebar card the user closed (local only). */
+  cardDismissed: 'commentgrab:announcements:cardDismissed',
 } as const;
 
 const TTL_MS = 6 * 60 * 60 * 1000;
@@ -74,6 +80,8 @@ const TIMEOUT_MS = 5000;
 const MAX_FEED_BYTES = 200_000;
 const MAX_ITEMS = 50;
 const MAX_SEEN_IDS = 300;
+const MAX_MODAL_IDS = 50;
+const MAX_DISMISSED_IDS = 50;
 /**
  * The day this feature shipped. Users updating from a build without it start
  * with everything older already read, so they see only news from here on.
@@ -402,13 +410,99 @@ export async function markAllSeen(items: Announcement[]): Promise<void> {
   await saveSeen(s);
 }
 
+/* ------------------------------ modal shown ------------------------------ */
+
+/**
+ * The one-time modal is decided only by this list, never by unread state: an
+ * id is recorded the moment its modal is SHOWN, so closing the tab, Esc, an
+ * outside click or any button all count and it never opens again. It lives in
+ * chrome.storage.sync so it follows the user across Chrome profiles/devices;
+ * chrome.storage.local is the fallback, and reads take the union of both.
+ */
+function cleanIds(raw: unknown, max: number): string[] {
+  return Array.isArray(raw) ? raw.filter((x): x is string => typeof x === 'string').slice(-max) : [];
+}
+
+export async function getModalShown(): Promise<string[]> {
+  let synced: unknown;
+  try {
+    synced = (await chrome.storage.sync.get(KEYS.modalShown))[KEYS.modalShown];
+  } catch {
+    /* sync unavailable */
+  }
+  const local = await readKey<unknown>(KEYS.modalShown);
+  return [...new Set([...cleanIds(local, MAX_MODAL_IDS), ...cleanIds(synced, MAX_MODAL_IDS)])];
+}
+
+export async function addModalShown(ids: string[]): Promise<void> {
+  if (!ids.length) return;
+  const next = [...new Set([...(await getModalShown()), ...ids])].slice(-MAX_MODAL_IDS);
+  store.modalShown = next;
+  try {
+    await chrome.storage.sync.set({ [KEYS.modalShown]: next });
+  } catch {
+    await writeKey(KEYS.modalShown, next);
+  }
+}
+
+/**
+ * First run of the modal store on this device. A fresh install records every
+ * current modal item as shown, so new users are not greeted by old news.
+ */
+async function ensureModalSeeded(items: Announcement[]): Promise<void> {
+  if (await readKey<boolean>(KEYS.modalSeeded)) return;
+  if (await readKey<number>(KEYS.installedAt)) {
+    await addModalShown(items.filter((i) => i.modal).map((i) => i.id));
+  }
+  await writeKey(KEYS.modalSeeded, true);
+}
+
+/**
+ * The modal item to show now: the newest modal item not shown yet. Every
+ * older unshown modal item is recorded together with it, so only one ever
+ * appears. Returns null when there is nothing to show.
+ */
+export async function takeModalItem(items: Announcement[]): Promise<Announcement | null> {
+  const shown = new Set(await getModalShown());
+  const pending = items.filter((i) => i.modal && !shown.has(i.id)); // newest first
+  if (!pending.length) return null;
+  await addModalShown(pending.map((i) => i.id).reverse()); // oldest first so the newest survives the cap
+  return pending[0];
+}
+
+/* ---------------------------- sidebar card state ---------------------------- */
+
+export async function getCardDismissed(): Promise<string[]> {
+  return cleanIds(await readKey<unknown>(KEYS.cardDismissed), MAX_DISMISSED_IDS);
+}
+
+export async function dismissCard(id: string): Promise<void> {
+  const next = [...new Set([...(await getCardDismissed()), id])].slice(-MAX_DISMISSED_IDS);
+  store.cardDismissed = next;
+  await writeKey(KEYS.cardDismissed, next);
+}
+
 /* --------------------------- shared reactive store --------------------------- */
 
-/** One store per page so the sidebar button, panel and modal agree. */
-export const store = reactive<{ items: Announcement[]; seen: SeenState | null; loaded: boolean }>({
+/** One store per page so the sidebar button, panel, modal and card agree. */
+export const store = reactive<{
+  items: Announcement[];
+  seen: SeenState | null;
+  loaded: boolean;
+  /** Set after the network round and the modal-store seeding. */
+  ready: boolean;
+  modalShown: string[];
+  cardDismissed: string[];
+  /** The What's new panel; set it to true from anywhere to open it. */
+  panelOpen: boolean;
+}>({
   items: [],
   seen: null,
   loaded: false,
+  ready: false,
+  modalShown: [],
+  cardDismissed: [],
+  panelOpen: false,
 });
 
 let loading: Promise<void> | null = null;
@@ -420,9 +514,13 @@ export function loadAnnouncements(): Promise<void> {
     // Paint from cache/bundle first so the badge does not wait on the network.
     store.items = await fetchAnnouncements({ cachedOnly: true });
     store.seen = await ensureSeeded(store.items);
+    store.cardDismissed = await getCardDismissed();
     store.loaded = true;
     store.items = await fetchAnnouncements();
     store.seen = await getSeenState();
+    await ensureModalSeeded(store.items);
+    store.modalShown = await getModalShown();
+    store.ready = true;
   })().finally(() => {
     loading = null;
   });
@@ -433,6 +531,12 @@ export function loadAnnouncements(): Promise<void> {
 try {
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area === 'local' && changes[KEYS.seen]) store.seen = cleanSeen(changes[KEYS.seen].newValue);
+    if (area === 'local' && changes[KEYS.cardDismissed]) {
+      store.cardDismissed = cleanIds(changes[KEYS.cardDismissed].newValue, MAX_DISMISSED_IDS);
+    }
+    if ((area === 'sync' || area === 'local') && changes[KEYS.modalShown]) {
+      void getModalShown().then((ids) => (store.modalShown = ids));
+    }
   });
 } catch {
   /* not in an extension context */
