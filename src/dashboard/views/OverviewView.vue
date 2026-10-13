@@ -30,17 +30,8 @@
     </div>
 
     <template v-else>
-      <!-- Hero -->
-      <SpCard class="mb-5 px-7 py-6">
-        <div class="col-label">{{ t('ov.allTime') }}</div>
-        <div class="mt-1.5 text-5xl font-semibold tracking-tight text-ink">{{ stats.totalComments.toLocaleString() }}</div>
-        <div class="mt-2.5 text-sm text-muted">
-          {{ t('ov.across', { scrapes: stats.totalScrapes.toLocaleString(), saved: savedCount, exports: stats.totalExports.toLocaleString() }) }}<template v-if="analyzed.length"> {{ t('ov.analyzedSuffix', { n: analyzed.length }) }}</template>
-        </div>
-      </SpCard>
-
       <!-- Metric cards with sparklines -->
-      <div class="mb-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div class="mb-5 grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-5">
         <div v-for="card in metricCards" :key="card.label" class="rounded-xl border border-line bg-surface p-4">
           <div class="flex items-center justify-between">
             <span class="col-label !mb-0">{{ card.label }}</span>
@@ -51,12 +42,13 @@
               <div class="text-2xl font-bold tracking-tight text-ink">{{ card.value }}</div>
               <div
                 v-if="card.delta"
+                title="vs last month"
                 class="mt-1 inline-flex items-center gap-0.5 text-xs font-semibold"
                 :class="card.delta.dir === 'up' ? 'text-emerald-600' : 'text-rose-500'"
               >
                 <component :is="card.delta.dir === 'up' ? ArrowUp : ArrowDown" class="h-3 w-3" />{{ card.delta.pct }}%
               </div>
-              <div v-else class="mt-1 text-xs text-faint">vs last month</div>
+              <div v-else class="mt-1 text-xs text-transparent" aria-hidden="true">.</div>
             </div>
             <div class="h-9 w-24 shrink-0"><SpSparkline :points="card.series" :color="card.color" /></div>
           </div>
@@ -253,11 +245,24 @@ function deltaOf(series: number[]): { dir: 'up' | 'down'; pct: number } | null {
   const cur = series[series.length - 1];
   const prev = series[series.length - 2];
   if (!cur && !prev) return null;
-  if (!prev) return { dir: 'up', pct: 100 };
+  // No earlier data: a percentage against zero means nothing, so show none.
+  if (!prev) return null;
   const pct = Math.round(((cur - prev) / prev) * 100);
   if (pct === 0) return null;
   return { dir: pct > 0 ? 'up' : 'down', pct: Math.abs(pct) };
 }
+
+const analyzedSeries = computed(() => {
+  const keys = months.value.map((m) => m.key);
+  const counts: Record<string, number> = {};
+  keys.forEach((k) => (counts[k] = 0));
+  for (const c of analyzed.value) {
+    const at = c.analysis?.createdAt ?? c.updatedAt;
+    const k = monthKey(new Date(at));
+    if (k in counts) counts[k] += 1;
+  }
+  return keys.map((k) => counts[k]);
+});
 
 const metricCards = computed(() => {
   const m = months.value;
@@ -270,6 +275,7 @@ const metricCards = computed(() => {
     { label: 'Scrapes', icon: Layers, value: formatNumber(stats.value.totalScrapes), color: '#6d5ef6', series: scrapes, delta: deltaOf(scrapes) },
     { label: 'Exports', icon: Download, value: formatNumber(stats.value.totalExports), color: '#6d5ef6', series: exportsSeries, delta: deltaOf(exportsSeries) },
     { label: 'Saved', icon: Bookmark, value: formatNumber(savedCount.value), color: '#6d5ef6', series: saved, delta: deltaOf(saved) },
+    { label: t('ov.analyzed'), icon: Sparkles, value: formatNumber(analyzed.value.length), color: '#6d5ef6', series: analyzedSeries.value, delta: deltaOf(analyzedSeries.value) },
   ];
 });
 
