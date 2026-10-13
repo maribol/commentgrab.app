@@ -38,3 +38,6 @@ listing.md
 
 # Packaged extension uploads
 *.zip
+
+# Local task list for agent sessions (not published)
+TASKS.md

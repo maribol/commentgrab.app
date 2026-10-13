@@ -8,7 +8,7 @@ CommentGrab pulls them all in one click.
 
 Open any supported page, click the floating widget, and export every comment and reply as clean CSV, JSON, or Markdown. Then point your own OpenAI key at it and get back the objections, hooks, and exact phrases buried in the replies.
 
-It's free. The full source is public (PolyForm Shield license — read it, audit it, build on it, just not to ship a competing product). No account, no server. The comments only leave your device when you send them to OpenAI yourself.
+It's free. The full source is public under the PolyForm Shield license: read it, audit it, build on it, just don't ship a competing product with it. No account, no server. The comments only leave your device when you send them to OpenAI yourself.
 
 ## Why it exists
 
@@ -34,15 +34,23 @@ API-backed platforms (Reddit, Hacker News, Steam, Bluesky, GitHub, Stack Exchang
 
 ## What you get
 
-- One-click capture from a floating widget, with live progress
+- One-click capture from a floating widget, with live progress. Close it when you don't need it; it stays out of the way while a video plays fullscreen.
 - Author, timestamp, score, permalink, in-comment links, and thread depth. Toggle any of them.
-- A dashboard to save threads, search them, and come back later
-- AI analysis with your own key: objections, ad hooks, emotional triggers, failed solutions, verbatim customer language, top themes, and sentiment
+- A dashboard to save threads, group them into boards, search them, and come back later
+- AI analysis with your own key, per thread, per board or per batch of posts: objections, ad hooks, emotional triggers, failed solutions, verbatim customer language, top themes, and sentiment
+- An estimate of tokens and cost before anything is sent to OpenAI, and the real usage after
+- Light and dark themes
 - Stats and saved threads stored on your device, never uploaded
 
-## Install (from source)
+![CommentGrab dashboard](docs/screenshot.png)
 
-CommentGrab isn't on the Chrome Web Store yet. Build it and load it unpacked:
+## Install
+
+Get it from the [Chrome Web Store](https://chromewebstore.google.com/detail/lbgkamikahfmdelplfmkmbcjonofnmhd).
+
+### From source
+
+Build it and load it unpacked:
 
 ```bash
 git clone https://github.com/maribol/commentgrab.app
@@ -63,7 +71,7 @@ Then in Chrome:
 1. Get a key at [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
 2. Open the dashboard, go to Settings, paste your key, hit Test or Save
 3. Pick a model (defaults to `gpt-4o-mini`)
-4. Save or scrape a thread, then hit Analyze
+4. Save or scrape a thread, open its Insights tab, then hit Analyze. You see the estimated tokens and cost first.
 
 Your key is stored locally and used only for requests you start. You pay OpenAI directly.
 
@@ -106,4 +114,4 @@ scripts/gen-icons.mjs  generates the icon set with sharp
 
 ## License
 
-Source-available under the [PolyForm Shield License 1.0.0](LICENSE). Free to use, read, audit, and build on — just not to ship a product that competes with CommentGrab.
+Source-available under the [PolyForm Shield License 1.0.0](LICENSE). Free to use, read, audit, and build on. The one thing it doesn't allow is shipping a product that competes with CommentGrab.
