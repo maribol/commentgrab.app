@@ -10,8 +10,8 @@
         <div class="flex items-center gap-2.5 px-2 pb-5" :class="collapsed ? 'flex-col gap-3 px-0' : ''">
           <BrandMark :size="28" />
           <div v-if="!collapsed" class="min-w-0">
-            <img :src="wordmark" alt="CommentGrab" class="h-4 w-auto dark:hidden" />
-            <img :src="wordmarkDark" alt="CommentGrab" class="hidden h-4 w-auto dark:block" />
+            <img :src="wordmark" alt="CommentGrab" class="h-[14px] w-auto dark:hidden" />
+            <img :src="wordmarkDark" alt="CommentGrab" class="hidden h-[14px] w-auto dark:block" />
           </div>
           <button
             class="text-faint transition hover:text-ink"
@@ -117,6 +117,8 @@
             </a>
             <a
               :href="bugUrl"
+              target="_blank"
+              rel="noopener"
               class="mt-1 flex items-center justify-center gap-1.5 rounded-lg border border-line-strong bg-surface px-2.5 py-1.5 text-[11px] font-semibold text-muted transition hover:bg-canvas-2 hover:text-ink"
             >
               <Bug class="h-3.5 w-3.5" /> {{ t('nav.reportBug') }}
@@ -184,7 +186,7 @@ import {
   Search, ChevronRight, PanelLeft, Bug,
 } from 'lucide-vue-next';
 import type { SavedCollection } from '@/shared/types';
-import { bugReportMailto } from '@/shared/util';
+import { reportProblemUrl } from '@/shared/util';
 import { t } from '@/shared/i18n';
 import { navigate, useRoute, crumb } from './router';
 import BrandMark from '@/ui/components/BrandMark.vue';
@@ -213,7 +215,7 @@ const paletteOpen = ref(false);
 
 const active = computed(() => route.segments[0] || 'overview');
 const appVersion = chrome.runtime.getManifest().version;
-const bugUrl = bugReportMailto(appVersion);
+const bugUrl = reportProblemUrl({ where: 'dashboard' });
 
 // Insights now live with the item: the old /analyze/:id link (still used by the
 // widget and popup hand-off) lands on the collection's Insights tab instead.
