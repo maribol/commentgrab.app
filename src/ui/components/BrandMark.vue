@@ -1,25 +1,17 @@
 <template>
-  <!-- The CommentGrab mark as inline SVG: a flat version of the app icon
-       (solid brand tile, white speech bubble, bars in brand shades). Inline SVG
-       renders in the content-script shadow DOM without a web-accessible resource.
-       Keep the `size` prop API so the artwork can be swapped for the new logo. -->
+  <!-- The CommentGrab mark (same artwork as src/assets/icons/logo.svg): violet tile, white
+       speech bubble with an up arrow. Inline SVG so it renders in the content-script shadow
+       DOM without a web-accessible resource. -->
   <svg
     :width="size"
     :height="size"
-    viewBox="0 0 128 128"
+    viewBox="0 0 1024 1024"
     xmlns="http://www.w3.org/2000/svg"
     class="shrink-0"
-    style="border-radius: 23.4%"
     aria-hidden="true"
   >
-    <rect x="0" y="0" width="128" height="128" rx="30" fill="#6D5EF6" />
-    <path
-      d="M35 31 h58 a15 15 0 0 1 15 15 v33 a15 15 0 0 1 -15 15 H60 l-15 15 v-15 h-10 a15 15 0 0 1 -15 -15 V46 a15 15 0 0 1 15 -15 z"
-      fill="#FFFFFF"
-    />
-    <rect x="44" y="60" width="11" height="24" rx="5.5" fill="#8F7BF3" />
-    <rect x="61" y="50" width="11" height="34" rx="5.5" fill="#6D5EF6" />
-    <rect x="78" y="42" width="11" height="42" rx="5.5" fill="#5A45E8" />
+    <rect width="1024" height="1024" rx="225" ry="225" fill="#6D5EF6" />
+    <g transform="translate(0.000000,1024.000000) scale(0.100000,-0.100000)" fill="#ffffff" stroke="none"> <path d="M4625 7889 c-1309 -119 -2360 -825 -2684 -1802 -310 -936 105 -1925 1064 -2537 120 -76 117 -73 109 -135 -41 -335 -213 -697 -470 -986 -71 -80 -42 -96 150 -86 514 28 1065 267 1474 640 84 77 98 86 151 96 116 23 251 72 392 143 657 332 989 966 993 1893 1 127 -2 238 -6 248 -7 16 -44 17 -578 17 -485 0 -571 2 -576 14 -6 16 164 256 1000 1410 340 468 598 828 603 842 16 43 -480 177 -830 225 -174 23 -623 34 -792 18z M6540 7524 c-140 -196 -326 -456 -413 -578 -87 -121 -224 -313 -305 -425 -81 -112 -196 -271 -256 -355 -60 -83 -158 -218 -217 -300 -60 -82 -106 -153 -103 -157 3 -5 193 -9 422 -9 229 0 423 -4 430 -8 22 -14 21 -757 -2 -947 -88 -759 -396 -1320 -909 -1660 -82 -55 -67 -61 100 -46 952 88 1635 515 1993 1246 157 320 218 620 227 1100 3 172 9 295 15 303 8 9 107 12 434 12 309 0 424 3 424 11 0 7 -31 55 -69 108 -456 632 -824 1143 -1280 1779 -127 177 -209 282 -219 282 -11 0 -114 -135 -272 -356z"/> </g>
   </svg>
 </template>
 
