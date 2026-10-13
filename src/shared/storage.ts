@@ -253,6 +253,21 @@ export async function renameBoard(id: string, name: string): Promise<void> {
   await setRaw(KEYS.boards, all);
 }
 
+/** Patch a board's stored fields (e.g. its combined analysis). */
+export async function updateBoard(id: string, patch: Partial<Omit<Board, 'id'>>): Promise<Board | undefined> {
+  const all = await getRaw<Board[]>(KEYS.boards, []);
+  const idx = all.findIndex((b) => b.id === id);
+  if (idx < 0) return undefined;
+  all[idx] = { ...all[idx], ...patch };
+  await setRaw(KEYS.boards, all);
+  return all[idx];
+}
+
+export async function getBoard(id: string): Promise<Board | undefined> {
+  const all = await getRaw<Board[]>(KEYS.boards, []);
+  return all.find((b) => b.id === id);
+}
+
 /** Delete a board and unfile it from every collection. */
 export async function deleteBoard(id: string): Promise<void> {
   const all = await getRaw<Board[]>(KEYS.boards, []);

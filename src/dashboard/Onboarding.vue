@@ -2,11 +2,9 @@
   <div class="flex min-h-screen items-center bg-shell justify-center p-6 font-sans text-ink">
     <div class="w-full max-w-lg animate-fade-up">
       <div class="mb-6 flex items-center gap-3">
-        <BrandMark :size="44" />
-        <div class="leading-none">
-          <div class="text-xl font-bold tracking-tight text-ink">CommentGrab</div>
-          <div class="mt-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-faint">{{ t('nav.commentExporter') }}</div>
-        </div>
+        <BrandMark :size="36" />
+        <img :src="wordmark" alt="CommentGrab" class="h-6 w-auto dark:hidden" />
+        <img :src="wordmarkDark" alt="CommentGrab" class="hidden h-6 w-auto dark:block" />
       </div>
 
       <SpCard class="p-7">
@@ -71,6 +69,8 @@ import { navigate } from './router';
 import SpCard from '@/ui/components/SpCard.vue';
 import SpButton from '@/ui/components/SpButton.vue';
 import BrandMark from '@/ui/components/BrandMark.vue';
+import wordmark from '@/assets/brand/wordmark.svg';
+import wordmarkDark from '@/assets/brand/wordmark-dark.svg';
 
 const lang = ref<Locale>('en');
 const key = ref('');

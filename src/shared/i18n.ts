@@ -136,7 +136,7 @@ const en: Record<string, string> = {
   'sv.all': 'All',
   'sv.unsorted': 'Unsorted',
   'sv.note': 'Note',
-  'sv.notePlaceholder': 'Add a note — what were you looking for here?',
+  'sv.notePlaceholder': 'Add a note: what were you looking for here?',
   'sv.saveNote': 'Save note',
   'sv.nothing': 'Nothing saved yet',
 

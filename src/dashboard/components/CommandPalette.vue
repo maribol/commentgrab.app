@@ -63,7 +63,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, ref, watch, type Component } from 'vue';
-import { Search, LayoutDashboard, Bookmark, History, WandSparkles, Settings } from 'lucide-vue-next';
+import { Search, LayoutDashboard, Bookmark, History, Layers, Settings } from 'lucide-vue-next';
 import type { PlatformId, SavedCollection } from '@/shared/types';
 import { faviconUrl } from '@/shared/util';
 import { navigate } from '../router';
@@ -88,7 +88,7 @@ const PAGES: Array<{ labelKey: string; path: string; icon: Component }> = [
   { labelKey: 'nav.overview', path: '/', icon: LayoutDashboard },
   { labelKey: 'nav.saved', path: '/saved', icon: Bookmark },
   { labelKey: 'nav.history', path: '/history', icon: History },
-  { labelKey: 'nav.analyze', path: '/analyze', icon: WandSparkles },
+  { labelKey: 'nav.batch', path: '/batch', icon: Layers },
   { labelKey: 'nav.settings', path: '/settings', icon: Settings },
 ];
 

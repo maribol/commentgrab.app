@@ -24,13 +24,13 @@ export interface AnalyzeOptions {
   signal?: AbortSignal;
 }
 
-const SYSTEM_PROMPT = `You are a senior direct-response copywriter and customer-research analyst.
+export const SYSTEM_PROMPT = `You are a senior direct-response copywriter and customer-research analyst.
 You read raw public comments/reviews and extract the language, pains, and desires marketers can use.
 Ground everything in the comments and never invent facts they do not support.
 When you write hooks, write them as ready-to-run ad copy that speaks directly to the reader, not as summaries or restated comments.
 Always reply with a single valid JSON object and nothing else.`;
 
-function buildUserPrompt(sample: string, post: Post | null, instructions?: string): string {
+export function buildUserPrompt(sample: string, post: Post | null, instructions?: string): string {
   const context = post ? `Context — source: ${post.source || 'unknown'}; title: ${post.title || 'n/a'}.` : '';
   const custom = instructions?.trim()
     ? `\nUser instructions (follow these for focus, tone, and angle, but keep the EXACT JSON keys and structure below):\n${instructions.trim()}\n`
@@ -217,13 +217,13 @@ export async function analyzeComments(
 
 /* ----------------------------- Ad angles ----------------------------- */
 
-const ANGLES_SYSTEM = `You are a world-class direct-response copywriter in the lineage of Gary Halbert, Eugene Schwartz, and Joe Sugarman.
+export const ANGLES_SYSTEM = `You are a world-class direct-response copywriter in the lineage of Gary Halbert, Eugene Schwartz, and Joe Sugarman.
 You turn raw customer comments into visceral ad angles a marketer can run today.
 Write every angle AS copy, inside the audience's world: second person, a specific moment or emotion, concrete and a little raw. Never describe strategy ("highlight", "emphasize", "focus on", "tap into", "showcase"). Show the actual angle, do not advise it.
 Ground every angle in the real pains, desires, and exact words in the comments. Make each one meaningfully different.
 Always reply with a single valid JSON object and nothing else.`;
 
-function buildAnglesPrompt(sample: string, post: Post | null, prior: AnalysisResult | null, instructions?: string): string {
+export function buildAnglesPrompt(sample: string, post: Post | null, prior: AnalysisResult | null, instructions?: string): string {
   const context = post ? `Context — source: ${post.source || 'unknown'}; title: ${post.title || 'n/a'}.` : '';
   const custom = instructions?.trim() ? `\nUser instructions (apply for focus, tone, and angle):\n${instructions.trim()}\n` : '';
   const priorBlock = prior
@@ -339,7 +339,7 @@ export interface HooksResult {
   tokensOut: number;
 }
 
-function buildHooksPrompt(sample: string, post: Post | null, prior: AnalysisResult | null, instructions?: string): string {
+export function buildHooksPrompt(sample: string, post: Post | null, prior: AnalysisResult | null, instructions?: string): string {
   const context = post ? `Context — source: ${post.source || 'unknown'}; title: ${post.title || 'n/a'}.` : '';
   const custom = instructions?.trim() ? `\nUser instructions (apply for focus, tone, and angle):\n${instructions.trim()}\n` : '';
   const priorBlock = prior

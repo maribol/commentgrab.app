@@ -141,6 +141,10 @@ export interface Board {
   id: string;
   name: string;
   createdAt: number;
+  /** One combined AI analysis over every collection filed under this board. */
+  analysis?: AnalysisResult | null;
+  /** When `analysis` was produced (ms). */
+  analyzedAt?: number;
 }
 
 export interface SavedCollection {
@@ -184,6 +188,8 @@ export interface BatchRun {
   updatedAt: number;
   /** Child collection ids, in ranked order. */
   collectionIds: string[];
+  /** One combined AI analysis over all the batch's posts. */
+  analysis?: AnalysisResult | null;
 }
 
 export interface HistoryEntry {
@@ -247,7 +253,11 @@ export interface AppSettings {
   analysisInstructions: string;
   /** UI language code (en, es, pt, fr, de). */
   language: string;
+  /** Ask before each OpenAI call: always, only when the estimate is $0.01 or more, or never. */
+  confirmAnalysis: ConfirmMode;
 }
+
+export type ConfirmMode = 'always' | 'above' | 'never';
 
 export const DEFAULT_SETTINGS: AppSettings = {
   openAiKey: '',
@@ -258,6 +268,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   autoSave: false,
   analysisInstructions: '',
   language: 'en',
+  confirmAnalysis: 'always',
 };
 
 /* ----------------------------- Analysis ---------------------------- */

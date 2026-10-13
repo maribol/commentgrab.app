@@ -1,15 +1,12 @@
 <template>
   <div class="animate-fade-up">
-    <header class="mb-6">
-      <h1 class="text-[22px] font-semibold tracking-tight text-ink">{{ t('set.title') }}</h1>
-      <p class="mt-1 text-[13.5px] text-muted">{{ t('set.subtitle') }}</p>
-    </header>
+    <p class="mb-4 text-[13.5px] text-muted">{{ t('set.subtitle') }}</p>
 
-    <div class="space-y-5">
+    <div class="max-w-3xl space-y-4">
       <!-- OpenAI -->
       <SpCard>
-        <h2 class="flex items-center gap-2 text-[15px] font-semibold text-ink"><KeyRound class="h-4.5 w-4.5 text-brand-600" /> {{ t('set.openai') }}</h2>
-        <p class="mt-1 text-[13.5px] text-muted">
+        <h2 class="flex items-center gap-2 text-[14px] font-semibold text-ink"><KeyRound class="h-4 w-4 text-commentgrab-violet" /> {{ t('set.openai') }}</h2>
+        <p class="mt-1 text-[13px] text-muted">
           {{ t('set.openaiDesc') }}
           <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener" class="font-medium text-brand-600 hover:underline">platform.openai.com</a>.
         </p>
@@ -23,47 +20,61 @@
               placeholder="sk-…"
               autocomplete="off"
               spellcheck="false"
-              class="input !pr-10 font-mono"
+              class="input h-9 !py-0 !pr-10 font-mono text-[13px]"
             />
             <button class="absolute right-2.5 top-1/2 -translate-y-1/2 text-faint hover:text-ink-soft" @click="showKey = !showKey">
               <component :is="showKey ? EyeOff : Eye" class="h-4 w-4" />
             </button>
           </div>
-          <SpButton variant="secondary" :loading="testing" @click="testKey()">{{ t('common.test') }}</SpButton>
-          <SpButton :icon="Check" @click="saveKey()">{{ t('common.save') }}</SpButton>
+          <SpButton variant="secondary" class="!h-9 !py-0" :loading="testing" @click="testKey()">{{ t('common.test') }}</SpButton>
+          <SpButton class="!h-9 !py-0" :icon="Check" @click="saveKey()">{{ t('common.save') }}</SpButton>
         </div>
         <p v-if="keyStatus" class="mt-2 flex items-center gap-1.5 text-sm" :class="keyStatus.ok ? 'text-emerald-600' : 'text-rose-600'">
           <component :is="keyStatus.ok ? CheckCircle2 : AlertCircle" class="h-4 w-4" /> {{ keyStatus.message }}
         </p>
 
         <label class="label mt-4">{{ t('set.model') }}</label>
-        <select v-model="form.openAiModel" class="input !w-auto">
+        <SelectField v-model="form.openAiModel" class="min-w-[200px]">
           <option v-for="m in models" :key="m" :value="m">{{ m }}</option>
-        </select>
+        </SelectField>
+
+        <label class="label mt-4">{{ t('set.confirm') }}</label>
+        <div class="inline-flex flex-wrap rounded-lg border border-line bg-canvas-2 p-0.5 text-[12.5px] font-semibold" role="radiogroup" :aria-label="t('set.confirm')">
+          <button
+            v-for="m in confirmModes"
+            :key="m.id"
+            role="radio"
+            :aria-checked="form.confirmAnalysis === m.id"
+            class="rounded-md px-3 py-1.5 transition"
+            :class="form.confirmAnalysis === m.id ? 'bg-surface text-ink ring-1 ring-line' : 'text-muted hover:text-ink'"
+            @click="form.confirmAnalysis = m.id"
+          >{{ m.label }}</button>
+        </div>
+        <p class="mt-1.5 text-xs text-faint">{{ t('set.confirmDesc') }}</p>
 
         <label class="label mt-4">{{ t('set.language') }}</label>
-        <select v-model="form.language" class="input !w-auto" @change="setLocale(form.language)">
+        <SelectField v-model="form.language" class="min-w-[200px]" @change="setLocale(form.language)">
           <option v-for="l in LOCALES" :key="l.id" :value="l.id">{{ l.label }}</option>
-        </select>
+        </SelectField>
 
         <label class="label mt-4">{{ t('set.customInstr') }} <span class="font-normal normal-case text-faint">({{ t('common.optional') }})</span></label>
         <textarea
           v-model="form.analysisInstructions"
           rows="3"
           :placeholder="t('set.customInstrPlaceholder')"
-          class="input resize-none"
+          class="input resize-none text-[13px]"
         />
         <p class="mt-1.5 text-xs text-faint">{{ t('set.customInstrExample') }}</p>
       </SpCard>
 
       <!-- Export defaults -->
       <SpCard>
-        <h2 class="flex items-center gap-2 text-[15px] font-semibold text-ink"><SlidersHorizontal class="h-4.5 w-4.5 text-brand-600" /> {{ t('set.exportDefaults') }}</h2>
-        <p class="mt-1 text-[13.5px] text-muted">{{ t('set.exportDefaultsSub') }}</p>
+        <h2 class="flex items-center gap-2 text-[14px] font-semibold text-ink"><SlidersHorizontal class="h-4 w-4 text-commentgrab-violet" /> {{ t('set.exportDefaults') }}</h2>
+        <p class="mt-1 text-[13px] text-muted">{{ t('set.exportDefaultsSub') }}</p>
         <div class="mt-4 divide-y divide-line">
           <div v-for="tg in exportToggles" :key="tg.key" class="flex items-center justify-between py-3">
             <div class="pr-4">
-              <div class="text-sm font-medium text-ink">{{ tg.label }}</div>
+              <div class="text-[13.5px] font-medium text-ink">{{ tg.label }}</div>
               <div class="text-xs text-faint">{{ tg.desc }}</div>
             </div>
             <SpToggle :model-value="form.export[tg.key]" @update:model-value="form.export[tg.key] = $event" />
@@ -73,18 +84,18 @@
 
       <!-- Widget -->
       <SpCard>
-        <h2 class="flex items-center gap-2 text-[15px] font-semibold text-ink"><LayoutPanelLeft class="h-4.5 w-4.5 text-brand-600" /> {{ t('set.widget') }}</h2>
+        <h2 class="flex items-center gap-2 text-[14px] font-semibold text-ink"><LayoutPanelLeft class="h-4 w-4 text-commentgrab-violet" /> {{ t('set.widget') }}</h2>
         <div class="mt-4 divide-y divide-line">
           <div class="flex items-center justify-between py-3">
             <div class="pr-4">
-              <div class="text-sm font-medium text-ink">{{ t('set.widgetShow') }}</div>
+              <div class="text-[13.5px] font-medium text-ink">{{ t('set.widgetShow') }}</div>
               <div class="text-xs text-faint">{{ t('set.widgetShowDesc') }}</div>
             </div>
             <SpToggle v-model="form.widgetEnabled" />
           </div>
           <div class="flex items-center justify-between py-3">
             <div class="pr-4">
-              <div class="text-sm font-medium text-ink">{{ t('set.widgetPos') }}</div>
+              <div class="text-[13.5px] font-medium text-ink">{{ t('set.widgetPos') }}</div>
               <div class="text-xs text-faint">{{ t('set.widgetPosDesc') }}</div>
             </div>
             <div class="flex rounded-lg border border-line bg-canvas-2 p-0.5 text-xs font-semibold">
@@ -99,7 +110,7 @@
           </div>
           <div class="flex items-center justify-between py-3">
             <div class="pr-4">
-              <div class="text-sm font-medium text-ink">{{ t('set.autoSave') }}</div>
+              <div class="text-[13.5px] font-medium text-ink">{{ t('set.autoSave') }}</div>
               <div class="text-xs text-faint">{{ t('set.autoSaveDesc') }}</div>
             </div>
             <SpToggle v-model="form.autoSave" />
@@ -109,8 +120,8 @@
 
       <!-- Data -->
       <SpCard>
-        <h2 class="flex items-center gap-2 text-[15px] font-semibold text-ink"><Database class="h-4.5 w-4.5 text-brand-600" /> {{ t('set.yourData') }}</h2>
-        <p class="mt-1 text-[13.5px] text-muted">{{ t('set.dataSub') }}</p>
+        <h2 class="flex items-center gap-2 text-[14px] font-semibold text-ink"><Database class="h-4 w-4 text-commentgrab-violet" /> {{ t('set.yourData') }}</h2>
+        <p class="mt-1 text-[13px] text-muted">{{ t('set.dataSub') }}</p>
         <div class="mt-4">
           <div class="mb-1.5 flex items-center justify-between text-xs font-medium text-muted">
             <span>{{ formatBytes(usage.bytes) }} {{ t('set.used') }}</span>
@@ -124,7 +135,7 @@
       </SpCard>
 
       <!-- About -->
-      <SpCard class="p-6">
+      <SpCard>
         <div class="flex items-center gap-2.5">
           <BrandMark :size="36" />
           <div>
@@ -158,7 +169,7 @@ import {
   KeyRound, Eye, EyeOff, Check, CheckCircle2, AlertCircle, SlidersHorizontal,
   LayoutPanelLeft, Database, Trash2,
 } from 'lucide-vue-next';
-import type { AppSettings, ExportSettings } from '@/shared/types';
+import type { AppSettings, ConfirmMode, ExportSettings } from '@/shared/types';
 import { DEFAULT_SETTINGS } from '@/shared/types';
 import { getSettings, saveSettings, estimateUsage, clearAllData } from '@/shared/storage';
 import { t, setLocale, LOCALES } from '@/shared/i18n';
@@ -169,6 +180,7 @@ import SpButton from '@/ui/components/SpButton.vue';
 import SpToggle from '@/ui/components/SpToggle.vue';
 import SpModal from '@/ui/components/SpModal.vue';
 import BrandMark from '@/ui/components/BrandMark.vue';
+import SelectField from '../components/SelectField.vue';
 
 const toast = useToast();
 const form = reactive<AppSettings>({ ...DEFAULT_SETTINGS, export: { ...DEFAULT_SETTINGS.export } });
@@ -181,6 +193,12 @@ const confirmClear = ref(false);
 const loaded = ref(false);
 
 const models = ['gpt-4o-mini', 'gpt-4o', 'gpt-4.1-mini', 'gpt-4.1', 'o4-mini'];
+
+const confirmModes = computed<Array<{ id: ConfirmMode; label: string }>>(() => [
+  { id: 'always', label: t('set.confirmAlways') },
+  { id: 'above', label: t('set.confirmAbove') },
+  { id: 'never', label: t('set.confirmNever') },
+]);
 
 const exportToggles = computed<Array<{ key: keyof ExportSettings; label: string; desc: string }>>(() => [
   { key: 'includePostInfo', label: t('set.tgPostInfo'), desc: t('set.tgPostInfoDesc') },
@@ -252,6 +270,7 @@ watch(
       autoSave: form.autoSave,
       analysisInstructions: form.analysisInstructions,
       language: form.language,
+      confirmAnalysis: form.confirmAnalysis,
     });
   },
   { deep: true },
