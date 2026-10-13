@@ -99,6 +99,9 @@ chrome.runtime.onMessage.addListener((message: CommentGrabMessage, sender, sendR
 
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install') {
+    // Lets "What's new" tell a fresh install (start with nothing unread) from
+    // an update (show what is new since the feature shipped).
+    chrome.storage.local.set({ 'commentgrab:installedAt': Date.now() }).catch(() => {});
     // Open the setup page (language + optional API key) on first install.
     const url = chrome.runtime.getURL('src/dashboard/index.html') + '#/welcome';
     chrome.tabs.create({ url }).catch(() => {});
