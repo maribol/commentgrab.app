@@ -143,15 +143,15 @@
 
       <!-- unsupported -->
       <div v-else>
-        <SpEmpty
-          :icon="Compass"
-          :title="t('pop.noComments')"
-          :description="t('pop.noCommentsBody')"
-        />
-        <div class="mt-3 grid grid-cols-2 gap-2">
-          <div v-for="p in supported" :key="p.id" class="flex items-center gap-2 rounded-lg border border-line bg-surface px-3 py-2">
-            <PlatformGlyph :platform="p.id" :size="26" />
-            <span class="text-xs font-medium text-ink-soft">{{ p.label }}</span>
+        <div class="flex flex-col items-center rounded-xl border border-line bg-surface px-5 pb-6 pt-5 text-center">
+          <SpIllustration :src="heroIllustration" :size="128" />
+          <h3 class="mt-3 text-base font-semibold text-ink">{{ t('pop.noComments') }}</h3>
+          <p class="mt-1 max-w-sm text-[13px] leading-relaxed text-muted">{{ t('pop.noCommentsBody') }}</p>
+        </div>
+        <div class="mt-2.5 grid grid-cols-4 gap-2">
+          <div v-for="p in supported" :key="p.id" class="flex flex-col items-center gap-1.5 rounded-lg border border-line bg-surface px-1 pb-2 pt-1.5">
+            <SpIllustration :src="platformIllustrations[p.id]!" :size="56" />
+            <span class="text-[11px] font-medium leading-tight text-ink-soft">{{ p.label }}</span>
           </div>
         </div>
       </div>
@@ -195,7 +195,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import {
-  Sparkles, LayoutDashboard, Loader2, Square, Bookmark, BookmarkCheck, RefreshCw, AlertCircle, Compass,
+  Sparkles, LayoutDashboard, Loader2, Square, Bookmark, BookmarkCheck, RefreshCw, AlertCircle,
   FileSpreadsheet, FileJson, FileText, Copy, WandSparkles, ExternalLink, Layers,
 } from 'lucide-vue-next';
 import type { AppSettings, ExportFormat, PlatformId, ScrapeResult, SavedCollection, Stats } from '@/shared/types';
@@ -211,7 +211,8 @@ import { formatNumber } from '@/shared/util';
 import SpCard from '@/ui/components/SpCard.vue';
 import SpButton from '@/ui/components/SpButton.vue';
 import SpProgress from '@/ui/components/SpProgress.vue';
-import SpEmpty from '@/ui/components/SpEmpty.vue';
+import SpIllustration from '@/ui/components/SpIllustration.vue';
+import { heroIllustration, platformIllustrations } from '@/assets/illustrations';
 import SpToaster from '@/ui/components/SpToaster.vue';
 import PlatformGlyph from '@/ui/components/PlatformGlyph.vue';
 import BrandMark from '@/ui/components/BrandMark.vue';

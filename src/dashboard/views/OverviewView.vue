@@ -1,21 +1,19 @@
 <template>
   <div class="animate-fade-up">
-    <header class="mb-6">
-      <h1 class="text-[22px] font-semibold tracking-tight text-ink">{{ t('ov.title') }}</h1>
-      <p class="mt-1 text-[13.5px] text-muted">{{ t('ov.subtitle') }}</p>
-    </header>
+    <!-- The page name lives in the breadcrumb; only the muted tagline stays, and only once there is data. -->
+    <p v-if="stats.totalScrapes > 0" class="mb-5 text-[13.5px] text-muted">{{ t('ov.subtitle') }}</p>
 
     <!-- Empty state -->
     <div v-if="stats.totalScrapes === 0" class="space-y-5">
       <SpCard class="px-8 py-10 text-center">
-        <BrandMark :size="64" class="mx-auto" />
-        <h2 class="mt-5 text-2xl font-bold tracking-tight text-ink">{{ t('ov.firstThread') }}</h2>
+        <SpIllustration :src="heroIllustration" :size="168" class="mx-auto" />
+        <h2 class="mt-4 text-2xl font-bold tracking-tight text-ink">{{ t('ov.firstThread') }}</h2>
         <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted">
           {{ t('ov.emptyBody') }}
         </p>
         <div class="mx-auto mt-7 grid max-w-lg grid-cols-2 gap-2.5 sm:grid-cols-4">
-          <div v-for="p in supported" :key="p.id" class="flex flex-col items-center gap-2 rounded-xl border border-line bg-surface px-3 py-4 transition hover:border-line-strong">
-            <PlatformGlyph :platform="p.id" :size="34" />
+          <div v-for="p in supported" :key="p.id" class="flex flex-col items-center gap-2 rounded-xl border border-line bg-surface px-3 pb-3.5 pt-3 transition hover:border-line-strong">
+            <SpIllustration :src="platformIllustrations[p.id]!" :size="76" />
             <span class="text-xs font-semibold text-ink-soft">{{ p.label }}</span>
           </div>
         </div>
@@ -24,9 +22,7 @@
       <!-- how it works -->
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div v-for="(step, i) in steps" :key="step.title" class="rounded-xl border border-line bg-surface p-4">
-          <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
-            <component :is="step.icon" class="h-[18px] w-[18px]" />
-          </span>
+          <SpIllustration :src="step.image" :size="72" />
           <div class="mt-3 text-sm font-semibold text-ink">{{ i + 1 }} · {{ step.title }}</div>
           <p class="mt-1 text-xs leading-relaxed text-muted">{{ step.body }}</p>
         </div>
@@ -203,7 +199,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { MessagesSquare, Layers, Download, Bookmark, ChevronRight, Sparkles, MousePointerClick, FileDown, ArrowUp, ArrowDown } from 'lucide-vue-next';
+import { MessagesSquare, Layers, Download, Bookmark, ChevronRight, Sparkles, ArrowUp, ArrowDown } from 'lucide-vue-next';
 import type { HistoryEntry, PlatformId, SavedCollection, Stats } from '@/shared/types';
 import { EMPTY_STATS } from '@/shared/types';
 import { getStats, listCollections, listHistory } from '@/shared/storage';
@@ -216,7 +212,8 @@ import SpCard from '@/ui/components/SpCard.vue';
 import SpSparkline from '@/ui/components/SpSparkline.vue';
 import PlatformGlyph from '@/ui/components/PlatformGlyph.vue';
 import BarChart from '../components/BarChart.vue';
-import BrandMark from '@/ui/components/BrandMark.vue';
+import SpIllustration from '@/ui/components/SpIllustration.vue';
+import { heroIllustration, platformIllustrations, stepIllustrations } from '@/assets/illustrations';
 
 const stats = ref<Stats>({ ...EMPTY_STATS });
 const collections = ref<SavedCollection[]>([]);
@@ -234,9 +231,9 @@ const recentCollections = computed(() =>
 const supported = [PLATFORM_META.reddit, PLATFORM_META.youtube, PLATFORM_META.hackernews, PLATFORM_META.steam];
 
 const steps = computed(() => [
-  { icon: MousePointerClick, title: t('ov.step1'), body: t('ov.step1d') },
-  { icon: Sparkles, title: t('ov.step2'), body: t('ov.step2d') },
-  { icon: FileDown, title: t('ov.step3'), body: t('ov.step3d') },
+  { image: stepIllustrations[0], title: t('ov.step1'), body: t('ov.step1d') },
+  { image: stepIllustrations[1], title: t('ov.step2'), body: t('ov.step2d') },
+  { image: stepIllustrations[2], title: t('ov.step3'), body: t('ov.step3d') },
 ]);
 const months = computed<MonthlyPoint[]>(() => lastNMonths(stats.value, 6));
 
