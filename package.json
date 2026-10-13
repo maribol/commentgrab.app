@@ -1,6 +1,6 @@
 {
   "name": "commentgrab-comment-exporter",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "CommentGrab — turn public comment threads into clean exports and AI-ready signal. Free, source-available Chrome extension for Reddit, YouTube, Hacker News, Steam and more.",
   "license": "SEE LICENSE IN LICENSE",
   "type": "module",

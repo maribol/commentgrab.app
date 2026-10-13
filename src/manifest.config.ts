@@ -8,16 +8,16 @@ const icons = {
 
 export default defineManifest({
   manifest_version: 3,
-  name: 'CommentGrab — Free Comment & Post Exporter',
+  name: 'CommentGrab: Comment Exporter',
   short_name: 'CommentGrab',
-  version: '1.1.0',
+  version: '1.2.0',
   description:
-    'Turn public comment threads into clean CSV/JSON exports and AI-ready signal. Reddit, YouTube, Hacker News, Steam & more.',
+    'Export the public comments on a page to CSV, JSON or Markdown, and pull out customer language with your own OpenAI key.',
   icons,
   action: {
     default_popup: 'src/popup/index.html',
     default_icon: icons,
-    default_title: 'CommentGrab — Free Comment & Post Exporter',
+    default_title: 'CommentGrab',
   },
   background: {
     service_worker: 'src/background/service-worker.ts',
